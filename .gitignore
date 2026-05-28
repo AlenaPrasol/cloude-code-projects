@@ -1,0 +1,6 @@
+bot.log
+remind.log
+__pycache__/
+*.pyc
+.env
+schedule.json
