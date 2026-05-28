@@ -1,0 +1,14 @@
+[Unit]
+Description=Church Bot - Расписание Кирилла и Мефодия, Дегунино
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/agent/degunnino-bot
+Environment=BOT_TOKEN=8410719025:AAHj4wrCJrGDllMKpC8sVc4V_fL_qwnwlNs
+ExecStart=/usr/bin/node bot.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

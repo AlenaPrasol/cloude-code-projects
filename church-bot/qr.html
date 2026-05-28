@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR — Храм Рождества Христова · Айхал</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #F7EED8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 30px 16px;
+        }
+
+        .card {
+            background: #FDF6E3;
+            border: 3px solid #C8A04A;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(44,18,8,0.18);
+        }
+
+        /* Шапка */
+        .header {
+            background: linear-gradient(160deg, #2C1208 0%, #5C2010 50%, #2C1208 100%);
+            padding: 28px 24px 22px;
+            text-align: center;
+            border-bottom: 3px solid #C8A04A;
+        }
+        .header .cross { font-size: 40px; color: #C8A04A; margin-bottom: 10px; }
+        .header h1 { font-size: 20px; color: #F5E6C8; font-weight: normal; line-height: 1.4; }
+        .header p { font-size: 14px; color: #C8A04A; margin-top: 6px; font-style: italic; }
+
+        /* QR-блок */
+        .qr-area {
+            padding: 28px 24px 20px;
+            text-align: center;
+        }
+        .qr-label {
+            font-size: 14px; color: #8B5A2A;
+            letter-spacing: 1px; text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .qr-frame {
+            display: inline-block;
+            border: 4px solid #C8A04A;
+            border-radius: 14px;
+            padding: 12px;
+            background: #fff;
+            margin-bottom: 16px;
+        }
+        .qr-frame img {
+            display: block;
+            width: 220px; height: 220px;
+        }
+        .qr-url {
+            font-size: 14px; color: #5C1A08;
+            word-break: break-all;
+            background: #F7EED8;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 0 0 8px;
+        }
+
+        /* Разделитель */
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #C8A04A, transparent);
+            margin: 0 24px;
+        }
+
+        /* Список возможностей */
+        .features {
+            padding: 20px 24px;
+        }
+        .feature {
+            display: flex; align-items: flex-start; gap: 12px;
+            margin-bottom: 14px;
+        }
+        .feature-icon { font-size: 22px; flex-shrink: 0; }
+        .feature-text { font-size: 15px; color: #3A2010; line-height: 1.5; }
+        .feature-text strong { color: #5C1A08; }
+
+        /* Подвал */
+        .footer {
+            background: linear-gradient(160deg, #2C1208, #3D1A10);
+            border-top: 2px solid #C8A04A;
+            padding: 16px 24px;
+            text-align: center;
+            font-size: 13px; color: #D4B896;
+            line-height: 1.7;
+        }
+        .footer strong { color: #C8A04A; }
+
+        /* Кнопка печати */
+        .print-btn {
+            display: block; width: calc(100% - 48px);
+            margin: 0 24px 24px;
+            padding: 14px;
+            background: #C8A04A; color: #2C1208;
+            border: none; border-radius: 12px;
+            font-family: 'Georgia', serif; font-size: 17px;
+            font-weight: bold; cursor: pointer;
+            text-align: center;
+        }
+        .print-btn:hover { background: #E8C06A; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .card {
+                border-color: #000; box-shadow: none;
+                max-width: 100%; border-radius: 0;
+            }
+            .print-btn { display: none; }
+            .header { background: #2C1208 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .footer { background: #2C1208 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <div class="header">
+        <div class="cross">✞</div>
+        <h1>Храм Рождества Христова</h1>
+        <p>посёлок Айхал · Республика Саха (Якутия)</p>
+    </div>
+
+    <div class="qr-area">
+        <div class="qr-label">Наведите камеру телефона</div>
+        <div class="qr-frame">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=0&data=https%3A%2F%2Fkhram-aikhal.netlify.app"
+                 alt="QR-код сайта прихода">
+        </div>
+        <div class="qr-url">khram-aikhal.netlify.app</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="features">
+        <div class="feature">
+            <span class="feature-icon">📜</span>
+            <div class="feature-text"><strong>Подать записку</strong> — о здравии, об упокоении, о болящих, о путешествующих</div>
+        </div>
+        <div class="feature">
+            <span class="feature-icon">📅</span>
+            <div class="feature-text"><strong>Расписание богослужений</strong> — всегда актуальное</div>
+        </div>
+        <div class="feature">
+            <span class="feature-icon">💳</span>
+            <div class="feature-text"><strong>Пожертвование на храм</strong> — Сбербанк, любой банк, СБП</div>
+        </div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">🖨 Распечатать</button>
+
+    <div class="footer">
+        Настоятель: <strong>иерей Иоанн Серкин</strong><br>
+        <strong>+7 (924) 460-52-20</strong>
+    </div>
+
+</div>
+
+</body>
+</html>

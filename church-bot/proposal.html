@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цифровой приход — предложение для Якутской епархии</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #F7EED8;
+            color: #2C1A0A;
+        }
+
+        /* ── ГЕРОЙ ── */
+        .hero {
+            background: linear-gradient(160deg, #1A0A04 0%, #3D1208 50%, #1A0A04 100%);
+            color: #F5E6C8;
+            text-align: center;
+            padding: 60px 20px 50px;
+            border-bottom: 4px solid #C8A04A;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at center, rgba(200,160,74,0.08) 0%, transparent 70%);
+        }
+        .hero-cross {
+            font-size: 52px; color: #C8A04A;
+            margin-bottom: 16px;
+            text-shadow: 0 0 30px rgba(200,160,74,0.4);
+        }
+        .hero-to {
+            font-size: 15px; color: #C8A04A;
+            letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 10px; font-style: italic;
+        }
+        .hero-name {
+            font-size: 26px; font-weight: normal;
+            line-height: 1.5; margin-bottom: 6px;
+        }
+        .hero-title {
+            font-size: 16px; color: #D4B896;
+            margin-bottom: 32px; font-style: italic;
+        }
+        .hero-divider {
+            width: 120px; height: 1px;
+            background: linear-gradient(to right, transparent, #C8A04A, transparent);
+            margin: 0 auto 28px;
+        }
+        .hero-subject {
+            font-size: 32px; font-weight: bold;
+            line-height: 1.35; color: #F5E6C8;
+            max-width: 700px; margin: 0 auto 16px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .hero-sub {
+            font-size: 17px; color: #C8A04A;
+            max-width: 600px; margin: 0 auto;
+            font-style: italic; line-height: 1.6;
+        }
+
+        /* ── ИМЕНА (святцы) ── */
+        .names-flow {
+            display: flex; flex-direction: column; gap: 16px;
+            margin: 28px 0;
+        }
+        .name-example {
+            background: #FDF6E3;
+            border: 1px solid #D4B078;
+            border-radius: 12px;
+            padding: 18px 22px;
+            display: flex; align-items: center; gap: 16px;
+            flex-wrap: wrap;
+        }
+        .name-input {
+            font-size: 20px; color: #8B1A1A;
+            text-decoration: line-through; opacity: 0.7;
+            min-width: 100px;
+        }
+        .name-arrow { font-size: 22px; color: #C8A04A; }
+        .name-output {
+            font-size: 22px; font-weight: bold; color: #1A5C1A;
+        }
+        .name-note {
+            font-size: 13px; color: #8B6A3A;
+            font-style: italic; flex-basis: 100%;
+            margin-top: 4px; padding-left: 0;
+        }
+        .name-warn {
+            background: #FFF8EE;
+            border: 1px solid #C8A04A;
+            border-radius: 12px;
+            padding: 18px 22px;
+        }
+        .name-warn-title { font-size: 17px; color: #8B5A00; margin-bottom: 8px; }
+        .name-warn-text { font-size: 15px; color: #6B4A2A; line-height: 1.65; }
+
+        .names-stat {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px; margin: 20px 0;
+        }
+        .names-stat-box {
+            background: #FDF6E3; border: 1px solid #C8A04A;
+            border-radius: 10px; padding: 16px;
+            text-align: center;
+        }
+        .names-stat-num {
+            font-size: 34px; font-weight: bold;
+            color: #C8A04A; display: block; margin-bottom: 4px;
+        }
+        .names-stat-label { font-size: 13px; color: #6B4A2A; }
+
+        /* ── ЦВЕТОВАЯ ГАММА ── */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px; margin: 28px 0;
+        }
+        .color-card {
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(44,18,8,0.12);
+        }
+        .color-card-top {
+            padding: 22px 18px 16px;
+            text-align: center;
+        }
+        .color-card-cross { font-size: 30px; margin-bottom: 8px; display: block; }
+        .color-card-name { font-size: 15px; font-weight: bold; line-height: 1.4; }
+        .color-card-city { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+        .color-card-bottom {
+            padding: 12px 18px;
+            font-size: 14px; line-height: 1.5;
+        }
+        .color-swatch {
+            display: inline-block; width: 14px; height: 14px;
+            border-radius: 50%; margin-right: 6px;
+            vertical-align: middle; border: 1px solid rgba(0,0,0,0.15);
+        }
+
+        /* ── НАВИГАЦИЯ ── */
+        .nav {
+            background: #2C1208;
+            border-bottom: 2px solid #C8A04A;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-inner {
+            max-width: 900px; margin: 0 auto;
+            display: flex; overflow-x: auto;
+        }
+        .nav a {
+            color: #C8A04A; text-decoration: none;
+            padding: 14px 18px; font-size: 14px;
+            white-space: nowrap; transition: background 0.2s;
+        }
+        .nav a:hover { background: rgba(200,160,74,0.15); }
+
+        /* ── СЕКЦИИ ── */
+        .section {
+            max-width: 860px; margin: 0 auto;
+            padding: 60px 24px;
+        }
+        .section + .section { border-top: 1px solid #D4B896; }
+
+        .section-badge {
+            display: inline-block;
+            background: #C8A04A; color: #2C1208;
+            font-size: 13px; font-weight: bold;
+            letter-spacing: 2px; text-transform: uppercase;
+            padding: 5px 14px; border-radius: 20px;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 30px; color: #3D1208;
+            margin-bottom: 16px; line-height: 1.3;
+        }
+        .section-text {
+            font-size: 17px; line-height: 1.85;
+            color: #3A2010; margin-bottom: 20px;
+        }
+
+        /* ── ВЫДЕЛЕННЫЕ БЛОКИ ── */
+        .highlight-box {
+            background: #FDF6E3;
+            border: 1px solid #C8A04A;
+            border-left: 5px solid #C8A04A;
+            border-radius: 10px;
+            padding: 24px 28px;
+            margin: 24px 0;
+            font-size: 17px; line-height: 1.8; color: #3A2010;
+        }
+        .highlight-box strong { color: #5C1A08; }
+
+        /* ── КАРТОЧКИ ПРОБЛЕМ ── */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px; margin: 28px 0;
+        }
+        .card {
+            background: #FDF6E3;
+            border: 1px solid #D4B078;
+            border-radius: 12px;
+            padding: 22px 20px;
+        }
+        .card-icon { font-size: 34px; margin-bottom: 12px; display: block; }
+        .card-title { font-size: 17px; font-weight: bold; color: #3D1208; margin-bottom: 8px; }
+        .card-text { font-size: 15px; color: #6B4A2A; line-height: 1.6; }
+
+        /* ── ДО/ПОСЛЕ ── */
+        .compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px; margin: 28px 0;
+        }
+        @media (max-width: 600px) { .compare { grid-template-columns: 1fr; } }
+        .compare-col {
+            border-radius: 12px;
+            padding: 22px 20px;
+        }
+        .compare-col.before {
+            background: #F5EEEE;
+            border: 1px solid #D4A0A0;
+        }
+        .compare-col.after {
+            background: #EDF5ED;
+            border: 1px solid #7ABB7A;
+        }
+        .compare-label {
+            font-size: 13px; font-weight: bold;
+            letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .compare-col.before .compare-label { color: #8B2020; }
+        .compare-col.after  .compare-label { color: #1A5C1A; }
+        .compare-item {
+            font-size: 15px; line-height: 1.65;
+            padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.07);
+            display: flex; gap: 10px; align-items: flex-start;
+        }
+        .compare-item:last-child { border-bottom: none; }
+        .compare-item .ci-icon { flex-shrink: 0; font-size: 18px; }
+
+        /* ── ЖИВОЙ ПРИМЕР ── */
+        .demo-box {
+            background: linear-gradient(135deg, #2C1208, #5C2010);
+            border-radius: 16px;
+            padding: 36px 32px;
+            text-align: center;
+            margin: 28px 0;
+            border: 2px solid #C8A04A;
+        }
+        .demo-box .demo-label {
+            font-size: 13px; color: #C8A04A;
+            letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .demo-box .demo-name {
+            font-size: 22px; color: #F5E6C8;
+            margin-bottom: 8px;
+        }
+        .demo-box .demo-link {
+            display: inline-block;
+            background: #C8A04A; color: #2C1208;
+            font-size: 17px; font-weight: bold;
+            padding: 14px 32px; border-radius: 30px;
+            text-decoration: none;
+            margin: 16px 0;
+            transition: background 0.2s;
+        }
+        .demo-box .demo-link:hover { background: #E8C06A; }
+        .demo-box .demo-hint {
+            font-size: 15px; color: #D4B896;
+            font-style: italic; margin-top: 10px;
+        }
+
+        /* ── ШАГИ ── */
+        .steps { margin: 28px 0; }
+        .step {
+            display: flex; gap: 20px; align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        .step-num {
+            width: 42px; height: 42px; flex-shrink: 0;
+            background: #C8A04A; color: #2C1208;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: bold;
+        }
+        .step-body { flex: 1; }
+        .step-title { font-size: 18px; font-weight: bold; color: #3D1208; margin-bottom: 6px; }
+        .step-text { font-size: 15px; color: #6B4A2A; line-height: 1.65; }
+
+        /* ── СТАТИСТИКА ЕПАРХИИ ── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px; margin: 28px 0;
+        }
+        .stat-box {
+            background: linear-gradient(135deg, #2C1208, #3D1A10);
+            border: 1px solid #C8A04A;
+            border-radius: 12px;
+            padding: 22px 16px;
+            text-align: center;
+            color: #F5E6C8;
+        }
+        .stat-num {
+            font-size: 40px; font-weight: bold;
+            color: #C8A04A; display: block;
+            margin-bottom: 6px;
+        }
+        .stat-label { font-size: 14px; color: #D4B896; line-height: 1.4; }
+
+        /* ── БЛАГОЧИНИЯ ── */
+        .district-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px; margin: 20px 0;
+        }
+        .district-item {
+            background: #FDF6E3;
+            border: 1px solid #D4B078;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 15px; color: #3D1208;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* ── ЦЕНА ── */
+        .price-hero {
+            text-align: center;
+            background: linear-gradient(135deg, #1A3C1A, #2A5C2A);
+            border-radius: 16px;
+            padding: 48px 32px;
+            margin: 28px 0;
+            border: 2px solid #7ABB7A;
+        }
+        .price-num {
+            font-size: 80px; font-weight: bold;
+            color: #7ABB7A; line-height: 1;
+            margin-bottom: 12px;
+        }
+        .price-label { font-size: 22px; color: #E8F5E8; margin-bottom: 20px; }
+        .price-details {
+            font-size: 16px; color: #A8CFA8;
+            line-height: 1.8;
+        }
+
+        /* ── ЭТАПЫ ── */
+        .phases { margin: 28px 0; }
+        .phase {
+            display: flex; gap: 0;
+            margin-bottom: 4px;
+        }
+        .phase-marker {
+            display: flex; flex-direction: column; align-items: center;
+            margin-right: 20px; width: 44px; flex-shrink: 0;
+        }
+        .phase-dot {
+            width: 44px; height: 44px;
+            background: #C8A04A; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: bold; color: #2C1208;
+            flex-shrink: 0;
+        }
+        .phase-line {
+            width: 2px; flex: 1; min-height: 20px;
+            background: linear-gradient(to bottom, #C8A04A, transparent);
+            margin-top: 4px;
+        }
+        .phase-body {
+            background: #FDF6E3;
+            border: 1px solid #D4B078;
+            border-radius: 12px;
+            padding: 18px 22px;
+            flex: 1; margin-bottom: 16px;
+        }
+        .phase-title { font-size: 18px; font-weight: bold; color: #3D1208; margin-bottom: 4px; }
+        .phase-time { font-size: 13px; color: #C8A04A; font-style: italic; margin-bottom: 8px; }
+        .phase-text { font-size: 15px; color: #6B4A2A; line-height: 1.65; }
+
+        /* ── ПИСЬМО ── */
+        .letter {
+            background: #FDF6E3;
+            border: 1px solid #C8A04A;
+            border-radius: 16px;
+            padding: 40px 44px;
+            margin: 28px 0;
+            position: relative;
+        }
+        .letter::before {
+            content: '✞';
+            position: absolute; top: -20px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px; color: #C8A04A;
+            background: #FDF6E3;
+            padding: 0 12px;
+        }
+        .letter-to {
+            font-size: 15px; color: #8B5A2A;
+            margin-bottom: 6px; font-style: italic;
+        }
+        .letter-name {
+            font-size: 22px; color: #3D1208;
+            margin-bottom: 20px; font-weight: normal;
+        }
+        .letter-text {
+            font-size: 16px; line-height: 1.9;
+            color: #3A2010; margin-bottom: 16px;
+        }
+        .letter-sign {
+            margin-top: 28px;
+            font-size: 15px; color: #6B4A2A;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .letter { padding: 32px 22px; }
+            .hero-subject { font-size: 24px; }
+            .section { padding: 40px 18px; }
+            .section-title { font-size: 24px; }
+        }
+
+        /* ── ПОДВАЛ ── */
+        .footer {
+            background: #2C1208;
+            border-top: 3px solid #C8A04A;
+            padding: 40px 24px;
+            text-align: center;
+            color: #D4B896;
+        }
+        .footer a { color: #C8A04A; }
+        .footer-cross { font-size: 30px; color: #C8A04A; margin-bottom: 12px; }
+        .footer-text { font-size: 15px; line-height: 1.8; }
+
+        /* ── ЗОЛОТОЙ РАЗДЕЛИТЕЛЬ ── */
+        .gold-divider {
+            display: flex; align-items: center; gap: 12px;
+            color: #C8A04A; font-size: 14px;
+            letter-spacing: 6px; margin: 8px 0 32px;
+        }
+        .gold-divider::before, .gold-divider::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(to right, transparent, #C8A04A, transparent);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── ГЕРОЙ ── -->
+<div class="hero">
+    <div class="hero-cross">✞</div>
+    <div class="hero-to">Его Высокопреосвященству</div>
+    <div class="hero-name">Высокопреосвященнейшему Роману,<br>Архиепископу Якутскому и Ленскому</div>
+    <div class="hero-title">Градоякутский Преображенский кафедральный собор</div>
+    <div class="hero-divider"></div>
+    <div class="hero-subject">Цифровой приход<br>для Якутской и Ленской епархии</div>
+    <div class="hero-sub">Прошу Вашего архипастырского благословения на проект<br>автоматизации приёма записок и пожертвований<br>во всех приходах епархии</div>
+</div>
+
+<!-- ── НАВИГАЦИЯ ── -->
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="#problem">Задача</a>
+        <a href="#solution">Решение</a>
+        <a href="#demo">Живой пример</a>
+        <a href="#features">Возможности</a>
+        <a href="#names">Имена по святцам</a>
+        <a href="#colors">Цвет храма</a>
+        <a href="#howworks">Как работает</a>
+        <a href="#diocese">Епархия</a>
+        <a href="#cost">Стоимость</a>
+        <a href="#phases">Этапы</a>
+        <a href="#blessing">Прошу благословения</a>
+    </div>
+</nav>
+
+<!-- ── ЗАДАЧА ── -->
+<div class="section" id="problem">
+    <div class="section-badge">Задача</div>
+    <div class="section-title">Якутия — особый случай</div>
+    <div class="gold-divider">✦</div>
+    <div class="section-text">
+        Якутская и Ленская епархия охватывает крупнейший регион России. Прихожане рассредоточены
+        по посёлкам, разделённым сотнями километров. Многие не могут прийти в храм лично —
+        но хотят подать записку и пожертвовать на храм.
+    </div>
+
+    <div class="cards">
+        <div class="card">
+            <span class="card-icon">📱</span>
+            <div class="card-title">Записки через мессенджер</div>
+            <div class="card-text">Прихожанин пишет имена в личку батюшке. Батюшка вручную переписывает. Имена теряются в переписке.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">🗓</span>
+            <div class="card-title">Расписание в группе</div>
+            <div class="card-text">Фото расписания в WhatsApp тонет в переписке. Прихожанин не знает актуального расписания.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">💳</span>
+            <div class="card-title">Сложности с пожертвованием</div>
+            <div class="card-text">Наличных нет, Сбербанк не у всех. Прихожанин хочет помочь — но не знает как.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">🌐</span>
+            <div class="card-title">Нет присутствия в сети</div>
+            <div class="card-text">У большинства приходов нет своего сайта. Новый прихожанин не может найти информацию о храме.</div>
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        В то время как <strong>48 священнослужителей</strong> несут служение на территории, сравнимой по площади
+        с несколькими европейскими странами — инструменты для работы с паствой остаются
+        теми же, что и 20 лет назад.
+    </div>
+</div>
+
+<!-- ── РЕШЕНИЕ ── -->
+<div class="section" id="solution">
+    <div class="section-badge">Решение</div>
+    <div class="section-title">Приходский сайт и Telegram-бот<br>для каждого прихода</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="compare">
+        <div class="compare-col before">
+            <div class="compare-label">❌ Было</div>
+            <div class="compare-item"><span class="ci-icon">😰</span> Записки — вручную в личку батюшке</div>
+            <div class="compare-item"><span class="ci-icon">📸</span> Расписание — фото, тонет в переписке</div>
+            <div class="compare-item"><span class="ci-icon">💸</span> Пожертвование — только наличными или Сбер</div>
+            <div class="compare-item"><span class="ci-icon">✍️</span> Объявление — батюшка пишет каждый раз, публикует вручную</div>
+            <div class="compare-item"><span class="ci-icon">🔍</span> Нет сайта — храм не найти в интернете</div>
+            <div class="compare-item"><span class="ci-icon">📋</span> Список записок — держит в голове или на бумажке</div>
+        </div>
+        <div class="compare-col after">
+            <div class="compare-label">✅ Стало</div>
+            <div class="compare-item"><span class="ci-icon">📲</span> Записки — прихожанин подаёт сам, имена проверяются по святцам</div>
+            <div class="compare-item"><span class="ci-icon">🌐</span> Расписание — всегда актуальное на сайте прихода</div>
+            <div class="compare-item"><span class="ci-icon">💳</span> Три способа пожертвования — Сбер, любой банк, СБП</div>
+            <div class="compare-item"><span class="ci-icon">📢</span> Объявление уходит в группу <strong>автоматически</strong> — батюшка только называет праздник</div>
+            <div class="compare-item"><span class="ci-icon">✨</span> Собственный сайт — приход присутствует в интернете</div>
+            <div class="compare-item"><span class="ci-icon">📤</span> Список записок — скачать готовый файл одной кнопкой</div>
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        Настоятель управляет всем <strong>с телефона</strong> через Telegram —
+        без компьютера, без технических знаний, без помощи специалистов.<br><br>
+        В 22:00 каждого дня бот <strong>сам присылает итог</strong> — сколько записок поступило.
+        Батюшке не нужно ничего проверять.
+    </div>
+</div>
+
+<!-- ── ЖИВОЙ ПРИМЕР ── -->
+<div class="section" id="demo">
+    <div class="section-badge">Живой пример</div>
+    <div class="section-title">Это уже работает в Якутии</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="section-text">
+        Система запущена и работает в <strong>Храме Рождества Христова посёлка Айхал</strong>
+        Мирнинского района. Прямо сейчас можно открыть сайт и подать записку:
+    </div>
+
+    <div class="demo-box">
+        <div class="demo-label">🌐 Сайт прихода — работает прямо сейчас</div>
+        <div class="demo-name">Храм Рождества Христова, пос. Айхал</div>
+        <a class="demo-link" href="https://khram-aikhal.netlify.app" target="_blank">
+            Открыть сайт прихода →
+        </a>
+        <div class="demo-hint">
+            Откройте с телефона и убедитесь лично.<br>
+            Попробуйте подать записку — имена сразу поступят настоятелю.
+        </div>
+    </div>
+
+    <div class="cards">
+        <div class="card">
+            <span class="card-icon">📜</span>
+            <div class="card-title">Записки онлайн</div>
+            <div class="card-text">О здравии, об упокоении, о болящих, о путешествующих. Имена проверяются по православным святцам автоматически.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">📅</span>
+            <div class="card-title">Расписание</div>
+            <div class="card-text">Батюшка присылает текст в бот — расписание публикуется на сайте за секунды.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">💳</span>
+            <div class="card-title">Пожертвование</div>
+            <div class="card-text">Сбербанк Онлайн, любой банк по номеру телефона, СБП — три способа для всех.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">📢</span>
+            <div class="card-title">Объявления</div>
+            <div class="card-text">Кнопка «Объявление» — бот спрашивает название праздника и готовит текст для WhatsApp и Telegram.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── ПОЛНЫЕ ВОЗМОЖНОСТИ ── -->
+<div class="section" id="features">
+    <div class="section-badge">Полный список</div>
+    <div class="section-title">Все возможности системы</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="cards">
+        <div class="card">
+            <span class="card-icon">📜</span>
+            <div class="card-title">Записки онлайн — 4 вида</div>
+            <div class="card-text">О здравии, об упокоении, о болящих, о путешествующих. Прихожанин подаёт сам с телефона. Имена проверяются по святцам автоматически.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">📢</span>
+            <div class="card-title">Авторассылка объявлений</div>
+            <div class="card-text">Батюшка вводит название праздника — бот сам публикует готовое объявление в приходскую Telegram-группу. Без копирования и поиска старых текстов.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">📅</span>
+            <div class="card-title">Расписание богослужений</div>
+            <div class="card-text">Батюшка присылает текст — сайт обновляется автоматически. Прихожане видят красивое расписание и через сайт, и через бот.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">💳</span>
+            <div class="card-title">Пожертвования — 3 способа</div>
+            <div class="card-text">Сбербанк Онлайн, любой банк по номеру телефона, СБП. Работает без наличных у любого прихожанина.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">📤</span>
+            <div class="card-title">Экспорт записок</div>
+            <div class="card-text">Одна кнопка — бот присылает готовый текстовый файл со всеми именами по видам. Удобно распечатать или передать в алтарь.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">📊</span>
+            <div class="card-title">Итог дня — автоматически</div>
+            <div class="card-text">Каждый вечер в 22:00 бот сам присылает сводку: сколько записок поступило за день и накоплено всего. Без лишних действий.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">🖨</span>
+            <div class="card-title">QR-код для притвора</div>
+            <div class="card-text">Готовая страница для распечатки с QR-кодом — вешается в притворе. Прихожанин наводит камеру и сразу попадает на сайт записок.</div>
+        </div>
+        <div class="card">
+            <span class="card-icon">🎨</span>
+            <div class="card-title">Цвет — по цвету храма</div>
+            <div class="card-text">Каждый приход получает сайт в своих литургических цветах: зелёный — Троицкий, синий — Преображенский, красный — Воскресенский.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── ИМЕНА ПО СВЯТЦАМ ── -->
+<div class="section" id="names">
+    <div class="section-badge">Важная особенность</div>
+    <div class="section-title">Имена исправляются автоматически<br>по православным святцам</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="section-text">
+        Прихожане привыкли называть близких уменьшительными и светскими именами — Маша, Коля, Серёжа.
+        В записке же требуется полное православное имя в родительном падеже, данное при крещении.
+        Система делает это исправление автоматически, без участия батюшки.
+    </div>
+
+    <div class="names-stat">
+        <div class="names-stat-box">
+            <span class="names-stat-num">300+</span>
+            <div class="names-stat-label">форм имён в базе</div>
+        </div>
+        <div class="names-stat-box">
+            <span class="names-stat-num">160+</span>
+            <div class="names-stat-label">канонических имён</div>
+        </div>
+        <div class="names-stat-box">
+            <span class="names-stat-num">авто</span>
+            <div class="names-stat-label">родительный падеж</div>
+        </div>
+        <div class="names-stat-box">
+            <span class="names-stat-num">0</span>
+            <div class="names-stat-label">ошибок батюшке</div>
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        Прихожанин вводит имена как привык. Система сама приводит к церковной форме
+        и ставит в <strong>родительный падеж</strong> — именно так, как читается на проскомидии.
+    </div>
+
+    <div style="font-size:18px; font-weight:bold; color:#3D1208; margin: 24px 0 14px;">
+        Примеры исправления:
+    </div>
+
+    <div class="names-flow">
+        <div class="name-example">
+            <span class="name-input">Маша</span>
+            <span class="name-arrow">→</span>
+            <span class="name-output">Марии</span>
+            <span class="name-note">Мария → родительный падеж «Марии»</span>
+        </div>
+        <div class="name-example">
+            <span class="name-input">Коля</span>
+            <span class="name-arrow">→</span>
+            <span class="name-output">Николая</span>
+            <span class="name-note">Николай → родительный падеж «Николая»</span>
+        </div>
+        <div class="name-example">
+            <span class="name-input">Петя</span>
+            <span class="name-arrow">→</span>
+            <span class="name-output">Петра</span>
+            <span class="name-note">Пётр → родительный падеж «Петра»</span>
+        </div>
+        <div class="name-example">
+            <span class="name-input">Серёжа</span>
+            <span class="name-arrow">→</span>
+            <span class="name-output">Сергия</span>
+            <span class="name-note">Сергий → родительный падеж «Сергия»</span>
+        </div>
+        <div class="name-example">
+            <span class="name-input">Дима</span>
+            <span class="name-arrow">→</span>
+            <span class="name-output">Димитрия</span>
+            <span class="name-note">Не «Дмитрия», а «Димитрия» — правильная церковная форма</span>
+        </div>
+        <div class="name-example">
+            <span class="name-input">Федя</span>
+            <span class="name-arrow">→</span>
+            <span class="name-output">Феодора</span>
+            <span class="name-note">Феодор — не «Фёдора», а «Феодора» — как в святцах</span>
+        </div>
+        <div class="name-example">
+            <span class="name-input">Лёша</span>
+            <span class="name-arrow">→</span>
+            <span class="name-output">Алексия</span>
+            <span class="name-note">Алексий → родительный падеж «Алексия»</span>
+        </div>
+        <div class="name-example">
+            <span class="name-input">Света</span>
+            <span class="name-arrow">→</span>
+            <span class="name-output">Фотинии</span>
+            <span class="name-note">Светлана — светское имя. Православное: Фотиния («свет» по-гречески)</span>
+        </div>
+    </div>
+
+    <div class="name-warn">
+        <div class="name-warn-title">⚠️ Неоднозначные имена — система уточняет</div>
+        <div class="name-warn-text">
+            Если имя может быть и мужским, и женским — например <strong>Саша, Женя, Валера</strong> —
+            система предлагает выбрать: ♂ Александр или ♀ Александра.
+            Прихожанин выбирает, и имя ставится в правильную форму.
+        </div>
+    </div>
+
+    <div class="name-warn" style="margin-top:12px; border-color:#D4A0A0; background:#FFF5F5;">
+        <div class="name-warn-title" style="color:#8B1A1A;">❌ Имя не найдено в святцах — предупреждение</div>
+        <div class="name-warn-text">
+            Если прихожанин вводит имя, которого нет в православных святцах — например
+            <strong>Дианы, Альберта, Марианны</strong> — система выделяет имя красным
+            и предлагает уточнить православное имя при крещении или удалить его из записки.
+            Батюшка получает только корректные имена.
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:24px;">
+        <strong>Итог:</strong> батюшка получает уже готовый список — имена в правильной церковной форме,
+        в родительном падеже, как на проскомидии. Никакой ручной правки.
+        Прихожанин может написать хоть «Маша, Коля, Петя» —
+        в записке будет «Марии, Николая, Петра».
+    </div>
+</div>
+
+<!-- ── ЦВЕТОВАЯ ГАММА ── -->
+<div class="section" id="colors">
+    <div class="section-badge">Индивидуальность прихода</div>
+    <div class="section-title">Цвет сайта — по цвету храма</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="section-text">
+        Каждый приход получает сайт <strong>в цветах своего храма</strong> — по цвету куполов
+        или по литургическому цвету праздника, которому посвящён храм.
+        Единый стиль — но своё лицо у каждого прихода.
+    </div>
+
+    <div class="color-grid">
+
+        <div class="color-card">
+            <div class="color-card-top" style="background:linear-gradient(135deg,#1A3A1A,#2E6B2E); color:#E8F5E8;">
+                <span class="color-card-cross">✞</span>
+                <div class="color-card-name">Троицкий храм</div>
+                <div class="color-card-city">Мирный</div>
+            </div>
+            <div class="color-card-bottom" style="background:#EDF5ED; color:#1A3A1A;">
+                <span class="color-swatch" style="background:#2E6B2E;"></span>Зелёный
+                — цвет Святой Троицы, цвет куполов
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-card-top" style="background:linear-gradient(135deg,#2C1208,#5C2010); color:#F5E6C8;">
+                <span class="color-card-cross">✞</span>
+                <div class="color-card-name">Храм Рождества Христова</div>
+                <div class="color-card-city">Айхал</div>
+            </div>
+            <div class="color-card-bottom" style="background:#FDF6E3; color:#3D1208;">
+                <span class="color-swatch" style="background:#C8A04A;"></span>Тёплое золото
+                — цвет Рождества и рукописной традиции
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-card-top" style="background:linear-gradient(135deg,#0D2A4A,#1A4A7A); color:#E8F0FF;">
+                <span class="color-card-cross">✞</span>
+                <div class="color-card-name">Преображенский собор</div>
+                <div class="color-card-city">Якутск</div>
+            </div>
+            <div class="color-card-bottom" style="background:#EEF0F8; color:#1A1A5C;">
+                <span class="color-swatch" style="background:#1A4A7A;"></span>Бело-синий
+                — цвет Преображения, небесный
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-card-top" style="background:linear-gradient(135deg,#3A1A00,#7A3A00); color:#FFF3E0;">
+                <span class="color-card-cross">✞</span>
+                <div class="color-card-name">Никольский храм</div>
+                <div class="color-card-city">любой приход</div>
+            </div>
+            <div class="color-card-bottom" style="background:#FFF3E0; color:#5C2A00;">
+                <span class="color-swatch" style="background:#C87A00;"></span>Янтарный
+                — золото святительского богослужения
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-card-top" style="background:linear-gradient(135deg,#1A0A2E,#3A1A5C); color:#F0E8FF;">
+                <span class="color-card-cross">✞</span>
+                <div class="color-card-name">Покровский храм</div>
+                <div class="color-card-city">любой приход</div>
+            </div>
+            <div class="color-card-bottom" style="background:#F0E8FF; color:#2A0A5C;">
+                <span class="color-swatch" style="background:#5C1A8B;"></span>Фиолетовый
+                — Богородичный цвет, Покров
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-card-top" style="background:linear-gradient(135deg,#8B0000,#5C0A0A); color:#FFE8E8;">
+                <span class="color-card-cross">✞</span>
+                <div class="color-card-name">Храм Воскресения Христова</div>
+                <div class="color-card-city">любой приход</div>
+            </div>
+            <div class="color-card-bottom" style="background:#FFF0F0; color:#5C0A0A;">
+                <span class="color-swatch" style="background:#8B0000;"></span>Красный
+                — пасхальный цвет, мученический
+            </div>
+        </div>
+
+    </div>
+
+    <div class="highlight-box">
+        Литургические цвета в Православной Церкви несут богословский смысл.
+        Зелёный — Дух Святой и монашество. Синий — Богородица и Преображение.
+        Красный — мученичество и Пасха. Золотой — Господские праздники и святители.
+        Белый — Рождество и Крещение. Фиолетовый — Великий пост и Богородица.<br><br>
+        <strong>Каждый сайт будет не просто красивым — он будет богословски точным.</strong>
+    </div>
+</div>
+
+<!-- ── КАК РАБОТАЕТ ── -->
+<div class="section" id="howworks">
+    <div class="section-badge">Как работает</div>
+    <div class="section-title">Один день из жизни прихода</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="section-text">Батюшка управляет всем через Telegram на своём телефоне:</div>
+
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+                <div class="step-title">Объявление уходит в группу автоматически</div>
+                <div class="step-text">Нажимает «📢 Объявление», вводит только название праздника — бот сам формирует полный текст и <strong>сразу публикует в приходскую группу Telegram</strong>. Батюшке не нужно ничего копировать или искать.</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+                <div class="step-title">Записки поступают сами</div>
+                <div class="step-text">Прихожане открывают сайт со смартфона, выбирают вид записки, вводят имена. Имена проверяются по православным святцам, исправляются на церковную форму и поступают батюшке в Telegram.</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+                <div class="step-title">Просмотр и скачивание записок</div>
+                <div class="step-text">«📋 Записки» — бот показывает все имена по видам. «📤 Скачать список» — присылает готовый текстовый файл для распечатки и передачи в алтарь.</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+                <div class="step-title">Расписание на следующую седмицу</div>
+                <div class="step-text">Батюшка присылает текст расписания в бот — сайт обновляется автоматически. Прихожане видят актуальное расписание в любой момент, в том числе красивую версию прямо в боте.</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+                <div class="step-title">После службы — очистка записок</div>
+                <div class="step-text">Кнопка «🗑 Очистить» — все записки удаляются. Список чист к следующей службе.</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-body">
+                <div class="step-title">Итог дня — приходит сам в 22:00</div>
+                <div class="step-text">Каждый вечер бот автоматически присылает сводку: сколько записок поступило за день, сколько накоплено всего по каждому виду. Батюшка всегда в курсе без лишних действий.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 24px;">
+        🖨 <strong>QR-код для притвора:</strong> специальная страница для распечатки —
+        прихожанин наводит камеру телефона и сразу попадает на сайт записок.
+        Достаточно повесить листочек у входа в храм.
+    </div>
+</div>
+
+<!-- ── ЕПАРХИЯ ── -->
+<div class="section" id="diocese">
+    <div class="section-badge">Якутская и Ленская епархия</div>
+    <div class="section-title">Масштаб</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <span class="stat-num">10</span>
+            <div class="stat-label">благочиний</div>
+        </div>
+        <div class="stat-box">
+            <span class="stat-num">15–20</span>
+            <div class="stat-label">действующих приходов</div>
+        </div>
+        <div class="stat-box">
+            <span class="stat-num">48</span>
+            <div class="stat-label">штатных клириков</div>
+        </div>
+        <div class="stat-box">
+            <span class="stat-num">4</span>
+            <div class="stat-label">монастыря</div>
+        </div>
+    </div>
+
+    <div class="section-text" style="margin-top: 16px;">
+        Благочиния епархии:
+    </div>
+    <div class="district-grid">
+        <div class="district-item">🏙 Городское</div>
+        <div class="district-item">🏙 Центральное 1-е</div>
+        <div class="district-item">🏙 Центральное 2-е</div>
+        <div class="district-item">⛏ Алданское</div>
+        <div class="district-item">🌊 Вилюйское</div>
+        <div class="district-item">🌲 Ленское</div>
+        <div class="district-item">💎 Мирнинское</div>
+        <div class="district-item">🏔 Нерюнгринское</div>
+        <div class="district-item">🌾 Покровское</div>
+        <div class="district-item">❄️ Северное</div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 24px;">
+        Каждый <strong>действующий приход епархии</strong> может получить собственный сайт
+        и Telegram-бот. Запуск одного прихода занимает <strong>один день</strong>
+        и выполняется дистанционно — батюшке достаточно 15 минут для обучения.
+    </div>
+</div>
+
+<!-- ── СТОИМОСТЬ ── -->
+<div class="section" id="cost">
+    <div class="section-badge">Стоимость</div>
+    <div class="section-title">Финансовый вопрос</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="price-hero">
+        <div class="price-num">₀</div>
+        <div class="price-label">Стоимость для прихода</div>
+        <div class="price-details">
+            Сайт размещается на бесплатном хостинге — без абонентской платы, без ограничений по времени<br>
+            Telegram-боты бесплатны<br>
+            Обслуживание не требует IT-специалистов<br><br>
+            <strong style="color:#7ABB7A">Всё, что нужно приходу — смартфон с Telegram у настоятеля</strong>
+        </div>
+    </div>
+</div>
+
+<!-- ── ЭТАПЫ ── -->
+<div class="section" id="phases">
+    <div class="section-badge">Этапы запуска</div>
+    <div class="section-title">От Якутска до всей епархии</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="phases">
+        <div class="phase">
+            <div class="phase-marker">
+                <div class="phase-dot">I</div>
+                <div class="phase-line"></div>
+            </div>
+            <div class="phase-body">
+                <div class="phase-title">Якутск — кафедральный собор</div>
+                <div class="phase-time">1–2 недели</div>
+                <div class="phase-text">Запуск системы в Градоякутском Преображенском кафедральном соборе. Отработка, демонстрация Вашему Высокопреосвященству вживую. Кафедральный собор — образец для всей епархии.</div>
+            </div>
+        </div>
+        <div class="phase">
+            <div class="phase-marker">
+                <div class="phase-dot">II</div>
+                <div class="phase-line"></div>
+            </div>
+            <div class="phase-body">
+                <div class="phase-title">По одному приходу от каждого благочиния</div>
+                <div class="phase-time">1 месяц</div>
+                <div class="phase-text">10 приходов — по одному от каждого благочиния. Разные условия, разные батюшки, разные населённые пункты. Убедиться, что система работает повсюду — от Якутска до Северного благочиния.</div>
+            </div>
+        </div>
+        <div class="phase">
+            <div class="phase-marker">
+                <div class="phase-dot">III</div>
+            </div>
+            <div class="phase-body">
+                <div class="phase-title">Вся епархия — по готовности приходов</div>
+                <div class="phase-time">По мере необходимости</div>
+                <div class="phase-text">Каждый желающий приход запускается за один день. Настройка — дистанционно. Обучение настоятеля — 15 минут. Каждый приход получает сайт вида <em>название-храма.netlify.app</em>.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        <strong>В перспективе:</strong> единый епархиальный портал со всеми приходами на карте,
+        сводная статистика для благочинных, единое оформление с символикой
+        Якутской и Ленской епархии.
+    </div>
+</div>
+
+<!-- ── ПРОШУ БЛАГОСЛОВЕНИЯ ── -->
+<div class="section" id="blessing">
+    <div class="section-badge">Прошение</div>
+    <div class="section-title">Прошу архипастырского благословения</div>
+    <div class="gold-divider">✦</div>
+
+    <div class="letter">
+        <div class="letter-to">Его Высокопреосвященству,</div>
+        <div class="letter-name">Высокопреосвященнейшему Роману,<br>Архиепископу Якутскому и Ленскому</div>
+
+        <div class="letter-text">
+            Ваше Высокопреосвященство,
+        </div>
+        <div class="letter-text">
+            смиренно прошу Вашего архипастырского благословения на реализацию
+            проекта цифровой системы приёма записок и пожертвований для приходов
+            Якутской и Ленской епархии.
+        </div>
+        <div class="letter-text">
+            Система уже работает в Храме Рождества Христова посёлка Айхал
+            Мирнинского района и показала свою простоту и надёжность.
+            Готова лично продемонстрировать её работу в любое удобное
+            для Вашего Высокопреосвященства время — дистанционно
+            или при личной встрече.
+        </div>
+        <div class="letter-text">
+            Прошу Вашего благословения на:<br><br>
+            <strong>1.</strong> Запуск системы в Градоякутском Преображенском кафедральном соборе
+            в качестве образца для епархии<br><br>
+            <strong>2.</strong> Предложение системы настоятелям приходов Якутской и Ленской епархии
+        </div>
+
+        <div class="letter-sign">
+            Испрашивая Ваших святых молитв и архипастырского благословения,<br><br>
+            <strong>[Ваше имя, должность]</strong><br>
+            Приход Храма Рождества Христова, пос. Айхал<br>
+            Мирнинское благочиние<br>
+            [Дата]
+        </div>
+    </div>
+
+    <div style="text-align:center; margin-top: 32px;">
+        <a href="https://khram-aikhal.netlify.app" target="_blank"
+            style="display:inline-block; background:#C8A04A; color:#2C1208;
+            font-size:18px; font-weight:bold; padding:16px 40px;
+            border-radius:30px; text-decoration:none;">
+            Открыть живой пример →
+        </a>
+    </div>
+</div>
+
+<!-- ── ПОДВАЛ ── -->
+<div class="footer">
+    <div class="footer-cross">✞</div>
+    <div class="footer-text">
+        Храм Рождества Христова · пос. Айхал · Якутская и Ленская епархия<br>
+        Действующий сайт прихода: <a href="https://khram-aikhal.netlify.app" target="_blank">khram-aikhal.netlify.app</a>
+    </div>
+</div>
+
+</body>
+</html>
