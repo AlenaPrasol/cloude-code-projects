@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Подать записку — Храм Рождества Христова</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: #c8a45a;
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.page {
+    background: #f5e6c0;
+    width: 560px;
+    max-width: 100%;
+    border: 5px solid #8B6914;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    align-self: flex-start;
+}
+.inner { border: 2px solid #c9a84c; margin: 8px; padding: 28px 24px 24px; }
+.header { text-align: center; margin-bottom: 20px; }
+.church-name { font-size: 20px; font-weight: bold; color: #2c1400; line-height: 1.4; margin-bottom: 6px; }
+.subtitle { font-size: 15px; color: #8B1A1A; font-style: italic; }
+.divider { display: flex; align-items: center; gap: 10px; margin: 16px 0; color: #8B6914; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 2px; background: linear-gradient(to right, transparent, #c9a84c, transparent); }
+
+/* ШАГ 1 — тип и имена */
+.type-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.type-btn {
+    padding: 16px 10px; border: 2px solid #c9a84c;
+    background: #fdf6e0; color: #2c1400;
+    font-family: Georgia, serif; font-size: 15px;
+    cursor: pointer; border-radius: 4px; transition: all 0.2s; text-align: center; line-height: 1.4;
+}
+.type-btn:hover { background: #f0e0a0; border-color: #8B6914; }
+.type-btn.active { background: #8B6914; color: #fff; border-color: #8B6914; }
+.type-btn .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+label { display: block; font-size: 14px; color: #5a3800; margin-bottom: 6px; font-weight: bold; }
+.hint { font-size: 13px; color: #888; font-weight: normal; font-style: italic; }
+textarea {
+    width: 100%; border: 2px solid #c9a84c; background: #fdf6e0;
+    padding: 12px; font-family: Georgia, serif; font-size: 15px;
+    color: #2c1400; resize: vertical; min-height: 140px;
+    border-radius: 4px; line-height: 1.6; outline: none;
+}
+textarea:focus { border-color: #8B6914; background: #fffef5; }
+textarea::placeholder { color: #bba870; font-style: italic; }
+
+/* ШАГ 2 — уточнение пола */
+#step-gender { display: none; }
+.gender-title { font-size: 16px; color: #2c1400; font-weight: bold; margin-bottom: 4px; }
+.gender-subtitle { font-size: 13px; color: #888; font-style: italic; margin-bottom: 18px; }
+.gender-card {
+    border: 2px solid #c9a84c; border-radius: 6px;
+    background: #fdf6e0; padding: 16px; margin-bottom: 14px;
+}
+.gender-card .name-label {
+    font-size: 16px; color: #8B1A1A; font-weight: bold; margin-bottom: 12px;
+    text-align: center;
+}
+.gender-card .name-label span { font-style: italic; }
+.gender-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gender-btn {
+    padding: 12px 8px; border: 2px solid #c9a84c;
+    background: #fdf6e0; color: #2c1400;
+    font-family: Georgia, serif; font-size: 14px;
+    cursor: pointer; border-radius: 4px; transition: all 0.2s; text-align: center;
+}
+.gender-btn:hover { background: #f0e0a0; border-color: #8B6914; }
+.gender-btn.chosen-m { background: #1a4a8b; color: #fff; border-color: #1a4a8b; }
+.gender-btn.chosen-f { background: #8b1a5a; color: #fff; border-color: #8b1a5a; }
+.gender-btn .g-icon { font-size: 18px; display: block; margin-bottom: 3px; }
+.gender-btn .g-name { font-size: 13px; opacity: 0.85; }
+
+/* Кнопки */
+.btn-primary {
+    width: 100%; margin-top: 18px; padding: 16px;
+    background: #8B1A1A; color: #fff; border: none;
+    font-family: Georgia, serif; font-size: 17px;
+    cursor: pointer; border-radius: 4px; transition: background 0.2s;
+}
+.btn-primary:hover { background: #6b1212; }
+.btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+.btn-back {
+    width: 100%; margin-top: 10px; padding: 10px;
+    background: transparent; color: #8B6914; border: 2px solid #c9a84c;
+    font-family: Georgia, serif; font-size: 14px;
+    cursor: pointer; border-radius: 4px; transition: all 0.2s;
+}
+.btn-back:hover { background: #f0e0a0; }
+
+/* Результат */
+.message { margin-top: 16px; padding: 16px; border-radius: 4px; font-size: 15px; text-align: center; display: none; line-height: 1.6; white-space: pre-line; }
+.message.success { background: #e8f5e9; border: 2px solid #4caf50; color: #2e7d32; display: block; }
+.message.error   { background: #ffebee; border: 2px solid #e57373; color: #c62828; display: block; }
+
+.donation {
+    margin-top: 22px; padding: 14px 16px;
+    background: #fdf0d0; border: 1px solid #c9a84c;
+    border-radius: 4px; font-size: 13px; color: #5a3800; text-align: center; line-height: 1.7;
+}
+.donation strong { color: #2c1400; font-size: 14px; }
+.footer { margin-top: 18px; text-align: center; font-size: 11px; color: #aaa; line-height: 1.6; }
+
+@media (max-width: 480px) {
+    .inner { padding: 18px 14px; }
+    .church-name { font-size: 17px; }
+    .type-btn { font-size: 13px; padding: 12px 6px; }
+}
+</style>
+</head>
+<body>
+<div class="page"><div class="inner">
+
+<div class="header">
+    <div style="margin-bottom:12px">
+        <svg viewBox="0 0 365 648" width="38" height="68" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="cg" x1="20%" y1="0%" x2="80%" y2="100%">
+                    <stop offset="0%" stop-color="#edd458"/>
+                    <stop offset="35%" stop-color="#c9a020"/>
+                    <stop offset="65%" stop-color="#8B6508"/>
+                    <stop offset="100%" stop-color="#d0aa38"/>
+                </linearGradient>
+                <filter id="cf"><feDropShadow dx="2" dy="3" stdDeviation="4" flood-color="rgba(0,0,0,0.35)"/></filter>
+            </defs>
+            <path fill="url(#cg)" filter="url(#cf)" d="M153,34v60H93V147h60v59H34v54H153V430.5L97,404v54l56 27V598h59V513l56,27V485L212,458V260H331V206H212V147H272V93H212V34z"/>
+        </svg>
+    </div>
+    <div class="church-name">Храм Рождества Христова</div>
+    <div class="subtitle">Подача записок онлайн</div>
+</div>
+
+<div class="divider"><span>☩</span></div>
+
+<!-- ШАГ 1: ввод имён -->
+<div id="step-input">
+    <div class="type-buttons">
+        <button class="type-btn active" id="btn-zdravie" onclick="selectType('zdravie')">
+            <span class="icon">🙏</span>О здравии
+        </button>
+        <button class="type-btn" id="btn-upokoj" onclick="selectType('upokoj')">
+            <span class="icon">✝️</span>Об упокоении
+        </button>
+    </div>
+    <label>Имена <span class="hint">— каждое имя с новой строки</span></label>
+    <textarea id="names" placeholder="Иоанна&#10;Марии&#10;Николая&#10;Евгения&#10;Анны"></textarea>
+    <button class="btn-primary" onclick="handleSubmit()">Далее →</button>
+</div>
+
+<!-- ШАГ 2: уточнение пола -->
+<div id="step-gender">
+    <div class="gender-title">Уточните пол имён</div>
+    <div class="gender-subtitle">Некоторые имена встречаются и у мужчин, и у женщин</div>
+    <div id="gender-cards"></div>
+    <button class="btn-primary" id="btn-confirm" onclick="confirmAndSend()" disabled>Подать записку</button>
+    <button class="btn-back" onclick="goBack()">← Назад</button>
+</div>
+
+<div class="message" id="message"></div>
+
+<div id="payment-btn" style="display:none;margin-top:16px;">
+    <button onclick="copyPhone()" style="
+        width:100%;padding:18px 12px;
+        background:linear-gradient(135deg,#8B6914,#c9a84c);
+        color:#fff;border:none;border-radius:6px;
+        font-family:Georgia,serif;font-size:15px;
+        cursor:pointer;line-height:1.6;text-align:center;
+        box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    ">
+        💳 Пожертвование на храм<br>
+        <span style="font-size:20px;font-weight:bold;letter-spacing:1px;">+79244605220</span><br>
+        <span style="font-size:12px;opacity:0.9;">Иван Александрович С. · «Пожертвование на храм»</span><br>
+        <span id="copy-hint" style="font-size:11px;opacity:0.75;">нажмите, чтобы скопировать номер</span>
+    </button>
+</div>
+
+<div class="donation">
+    <strong>Пожертвование на храм</strong><br>
+    Перевод по номеру телефона:<br>
+    <strong>+79244605220</strong><br>
+    Получатель: Иван Александрович С.<br>
+    Назначение: «Пожертвование на храм»
+</div>
+
+<div class="footer">Ваша записка будет передана батюшке и прочитана во время богослужения</div>
+
+<div id="admin-area" style="margin-top:24px;text-align:center">
+    <span onclick="toggleAdmin()" style="font-size:11px;color:#ccc;cursor:pointer;user-select:none">⚙</span>
+</div>
+<div id="admin-panel" style="display:none;margin-top:10px;padding:14px;background:#fff0f0;border:2px solid #e57373;border-radius:6px;text-align:center">
+    <div style="font-size:13px;color:#c62828;margin-bottom:10px;font-weight:bold">⚠️ Зона администратора</div>
+    <button onclick="clearNotes()" style="padding:10px 20px;background:#c62828;color:#fff;border:none;border-radius:4px;font-family:Georgia,serif;font-size:14px;cursor:pointer">
+        🗑 Очистить все записки после службы
+    </button>
+    <div style="font-size:11px;color:#999;margin-top:8px">Потребуется подтверждение</div>
+</div>
+
+</div></div>
+
+<script>
+// ─── Неоднозначные имена ─────────────────────────────────────────────────────
+// match: все формы (именит., родит., уменьш.), которые могут быть и муж. и жен.
+const AMBIGUOUS = [
+    {
+        match: ['александр','александра','александры','саша','саши','шура','шуры','сашенька'],
+        label: 'Александр / Александра',
+        male:   { canonical: 'Александр', gen: 'Александра' },
+        female: { canonical: 'Александра', gen: 'Александры' },
+    },
+    {
+        match: ['евгений','евгения','евгении','женя','жени','евгеньевич','евгеньевна'],
+        label: 'Евгений / Евгения',
+        male:   { canonical: 'Евгений', gen: 'Евгения' },
+        female: { canonical: 'Евгения', gen: 'Евгении' },
+    },
+    {
+        match: ['валерий','валерия','валерии','валера','валеры','лера','леры'],
+        label: 'Валерий / Валерия',
+        male:   { canonical: 'Валерий', gen: 'Валерия' },
+        female: { canonical: 'Валерия', gen: 'Валерии' },
+    },
+];
+
+// ─── Имена → родительный падеж (основные случаи) ────────────────────────────
+const NAMES_GEN = {
+    // Мужские
+    'иван':'Иоанна','ваня':'Иоанна','иоанн':'Иоанна',
+    'александр':'Александра','саша':'Александра',
+    'николай':'Николая','коля':'Николая',
+    'михаил':'Михаила','миша':'Михаила',
+    'сергей':'Сергия','серёжа':'Сергия','сергий':'Сергия',
+    'алексей':'Алексия','лёша':'Алексия','алексий':'Алексия',
+    'дмитрий':'Димитрия','дима':'Димитрия','митя':'Димитрия',
+    'андрей':'Андрея','андрюша':'Андрея',
+    'владимир':'Владимира','вова':'Владимира','володя':'Владимира',
+    'константин':'Константина','костя':'Константина',
+    'виктор':'Виктора','витя':'Виктора',
+    'григорий':'Григория','гриша':'Григория',
+    'павел':'Павла','паша':'Павла',
+    'пётр':'Петра','петя':'Петра',
+    'георгий':'Георгия','юрий':'Георгия','юра':'Георгия','жора':'Георгия',
+    'илья':'Илии','илия':'Илии',
+    'василий':'Василия','вася':'Василия',
+    'иосиф':'Иосифа',
+    'кирилл':'Кирилла','кирюша':'Кирилла',
+    'тихон':'Тихона','тиша':'Тихона',
+    'максим':'Максима',
+    'роман':'Романа','рома':'Романа',
+    'борис':'Бориса','боря':'Бориса',
+    'вячеслав':'Вячеслава','слава':'Вячеслава',
+    'олег':'Олега',
+    'евгений':'Евгения','женя':'Евгения',
+    'валерий':'Валерия','валера':'Валерия',
+    'геннадий':'Геннадия','гена':'Геннадия',
+    'анатолий':'Анатолия','толя':'Анатолия',
+    'леонид':'Леонида','лёня':'Леонида',
+    'станислав':'Станислава','стас':'Станислава',
+    'фёдор':'Феодора','федя':'Феодора','феодор':'Феодора',
+    'лев':'Льва',
+    'тимофей':'Тимофея','тима':'Тимофея',
+    'симеон':'Симеона','семён':'Симеона','семен':'Симеона',
+    'даниил':'Даниила','даня':'Даниила',
+    'матфей':'Матфея','матвей':'Матфея',
+    'иаков':'Иакова','яков':'Иакова','яша':'Иакова',
+    'филипп':'Филиппа','филя':'Филиппа',
+    'стефан':'Стефана','степан':'Стефана','стёпа':'Стефана',
+    'гавриил':'Гавриила',
+    'никита':'Никиты',
+    'глеб':'Глеба',
+    'лука':'Луки',
+    'косма':'Космы','кузьма':'Космы',
+    // Женские
+    'мария':'Марии','маша':'Марии','маня':'Марии',
+    'анна':'Анны','аня':'Анны','нюра':'Анны',
+    'екатерина':'Екатерины','катя':'Екатерины',
+    'елена':'Елены','лена':'Елены','алёна':'Елены',
+    'ольга':'Ольги','оля':'Ольги',
+    'наталья':'Наталии','наташа':'Наталии','наталия':'Наталии',
+    'татьяна':'Татьяны','таня':'Татьяны',
+    'ирина':'Ирины','ира':'Ирины',
+    'людмила':'Людмилы','люда':'Людмилы',
+    'надежда':'Надежды','надя':'Надежды',
+    'вера':'Веры',
+    'любовь':'Любови','люба':'Любови',
+    'галина':'Галины','галя':'Галины',
+    'светлана':'Фотинии','света':'Фотинии','фотиния':'Фотинии',
+    'тамара':'Тамары',
+    'нина':'Нины',
+    'зинаида':'Зинаиды','зина':'Зинаиды',
+    'лидия':'Лидии','лида':'Лидии',
+    'антонина':'Антонины','тоня':'Антонины',
+    'валентина':'Валентины','валя':'Валентины',
+    'александра':'Александры',
+    'евгения':'Евгении',
+    'валерия':'Валерии','лера':'Валерии',
+    'елизавета':'Елисаветы','лиза':'Елисаветы',
+    'ксения':'Ксении','ксюша':'Ксении',
+    'марина':'Марины',
+    'вероника':'Вероники','ника':'Вероники',
+    'виктория':'Виктории','вика':'Виктории',
+    'маргарита':'Маргариты','рита':'Маргариты',
+    'дарья':'Дарьи','даша':'Дарьи',
+    'анастасия':'Анастасии','настя':'Анастасии',
+    'юлия':'Иулии','юля':'Иулии',
+    'полина':'Аполлинарии',
+    'зоя':'Зои',
+    'раиса':'Раисы','рая':'Раисы',
+    'клавдия':'Клавдии','клава':'Клавдии',
+    'серафима':'Серафимы','сима':'Серафимы',
+    'варвара':'Варвары','варя':'Варвары',
+    'тамара':'Тамары','тома':'Тамары',
+    'софия':'Софии','соня':'Софии',
+    'диана':'Дианы',
+    'алла':'Аллы',
+    'алина':'Алины',
+    'кристина':'Христины','христина':'Христины',
+};
+
+// ─── Состояние ───────────────────────────────────────────────────────────────
+let selectedType = 'zdravie';
+let pendingNames = [];    // [{ original, ambigIdx }] или [{ original, gen }]
+let resolvedNames = [];   // [{ original, gen }]
+let genderChoices = {};   // ambigIdx → 'm' | 'f'
+
+function selectType(type) {
+    selectedType = type;
+    document.getElementById('btn-zdravie').classList.toggle('active', type === 'zdravie');
+    document.getElementById('btn-upokoj').classList.toggle('active',  type === 'upokoj');
+}
+
+function normalize(s) {
+    return s.toLowerCase().trim()
+        .replace(/ё/g,'е').replace(/й/g,'и');
+}
+
+function findAmbig(word) {
+    const key = normalize(word);
+    for (let i = 0; i < AMBIGUOUS.length; i++) {
+        if (AMBIGUOUS[i].match.some(m => normalize(m) === key)) return i;
+    }
+    return -1;
+}
+
+function getGenitive(word) {
+    const key = normalize(word);
+    for (const [k, v] of Object.entries(NAMES_GEN)) {
+        if (normalize(k) === key) return v;
+    }
+    // Авто-склонение как запасной вариант
+    const w = word.trim();
+    const W = w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    if (W.endsWith('ий')) return W.slice(0,-2)+'ия';
+    if (W.endsWith('ия')) return W.slice(0,-2)+'ии';
+    if (W.endsWith('ья')) return W.slice(0,-1)+'и';
+    if (W.endsWith('ей')) return W.slice(0,-1)+'я';
+    if (W.endsWith('ай')) return W.slice(0,-1)+'я';
+    if (W.endsWith('й'))  return W.slice(0,-1)+'я';
+    const velar = ['г','к','х','ж','ш','щ','ч'];
+    if (W.endsWith('а')) return W.slice(0,-1)+(velar.includes(W[W.length-2].toLowerCase())?'и':'ы');
+    if (W.endsWith('я')) return W.slice(0,-1)+'и';
+    const cons = 'бвгджзклмнпрстфхцчшщ';
+    if (cons.includes(W[W.length-1].toLowerCase())) return W+'а';
+    return W;
+}
+
+function handleSubmit() {
+    const raw = document.getElementById('names').value.trim();
+    if (!raw) { alert('Пожалуйста, введите имена.'); return; }
+
+    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    if (!lines.length) { alert('Пожалуйста, введите имена.'); return; }
+
+    pendingNames = [];
+    resolvedNames = [];
+    genderChoices = {};
+
+    const ambiguous = [];
+
+    lines.forEach(word => {
+        const ai = findAmbig(word);
+        if (ai >= 0) {
+            pendingNames.push({ original: word, ambigIdx: ai });
+            if (!ambiguous.includes(ai)) ambiguous.push(ai);
+        } else {
+            const gen = getGenitive(word);
+            resolvedNames.push({ original: word, gen });
+        }
+    });
+
+    if (ambiguous.length === 0) {
+        // Всё однозначно — сразу отправляем
+        sendNotes(resolvedNames);
+        return;
+    }
+
+    // Показываем шаг уточнения пола
+    buildGenderCards(ambiguous);
+    document.getElementById('step-input').style.display = 'none';
+    document.getElementById('step-gender').style.display = 'block';
+    document.getElementById('message').style.display = 'none';
+}
+
+function buildGenderCards(ambigIndices) {
+    const container = document.getElementById('gender-cards');
+    container.innerHTML = '';
+    ambigIndices.forEach(ai => {
+        const a = AMBIGUOUS[ai];
+        const card = document.createElement('div');
+        card.className = 'gender-card';
+        card.innerHTML = `
+            <div class="name-label">«<span>${a.label.split(' / ')[0]}</span>» — мужское или женское?</div>
+            <div class="gender-btns">
+                <button class="gender-btn" id="gbtn-m-${ai}" onclick="chooseGender(${ai},'m')">
+                    <span class="g-icon">♂</span>
+                    ${a.male.canonical}<br>
+                    <span class="g-name">(род. ${a.male.gen})</span>
+                </button>
+                <button class="gender-btn" id="gbtn-f-${ai}" onclick="chooseGender(${ai},'f')">
+                    <span class="g-icon">♀</span>
+                    ${a.female.canonical}<br>
+                    <span class="g-name">(род. ${a.female.gen})</span>
+                </button>
+            </div>`;
+        container.appendChild(card);
+    });
+    checkAllChosen();
+}
+
+function chooseGender(ai, gender) {
+    genderChoices[ai] = gender;
+    const btnM = document.getElementById('gbtn-m-'+ai);
+    const btnF = document.getElementById('gbtn-f-'+ai);
+    btnM.className = 'gender-btn' + (gender === 'm' ? ' chosen-m' : '');
+    btnF.className = 'gender-btn' + (gender === 'f' ? ' chosen-f' : '');
+    checkAllChosen();
+}
+
+function checkAllChosen() {
+    const cards = document.querySelectorAll('.gender-card');
+    const allChosen = pendingNames
+        .filter(n => n.ambigIdx !== undefined)
+        .map(n => n.ambigIdx)
+        .filter((v,i,a) => a.indexOf(v) === i)
+        .every(ai => genderChoices[ai] !== undefined);
+    document.getElementById('btn-confirm').disabled = !allChosen;
+}
+
+function confirmAndSend() {
+    const finalNames = [...resolvedNames];
+    pendingNames.forEach(n => {
+        const a = AMBIGUOUS[n.ambigIdx];
+        const gender = genderChoices[n.ambigIdx];
+        const info = gender === 'm' ? a.male : a.female;
+        finalNames.push({ original: n.original, gen: info.gen });
+    });
+    sendNotes(finalNames);
+}
+
+function goBack() {
+    document.getElementById('step-gender').style.display = 'none';
+    document.getElementById('step-input').style.display = 'block';
+}
+
+async function sendNotes(names) {
+    const btnConfirm = document.getElementById('btn-confirm');
+    const btnSubmit  = document.querySelector('#step-input .btn-primary');
+    if (btnConfirm) btnConfirm.disabled = true;
+    if (btnSubmit)  btnSubmit.disabled  = true;
+
+    try {
+        const resp = await fetch('http://155.212.138.18:3001/zapiski', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: selectedType, names: names.map(n => n.gen) })
+        });
+
+        document.getElementById('step-input').style.display  = 'none';
+        document.getElementById('step-gender').style.display = 'none';
+
+        if (resp.ok) {
+            const label = selectedType === 'zdravie' ? 'о здравии' : 'об упокоении';
+            const list  = names.map(n => '• ' + n.gen).join('\n');
+            showMessage(`✅ Записка ${label} подана!\n\n${list}\n\nСпаси вас Господи! 🙏`, 'success');
+        } else {
+            showMessage('Ошибка отправки. Попробуйте ещё раз.', 'error');
+            goBack();
+        }
+    } catch(e) {
+        showMessage('Не удалось отправить. Проверьте интернет или попробуйте позже.', 'error');
+        if (btnConfirm) btnConfirm.disabled = false;
+        if (btnSubmit)  btnSubmit.disabled  = false;
+    }
+}
+
+function toggleAdmin() {
+    const panel = document.getElementById('admin-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+async function clearNotes() {
+    if (!confirm('Вы уверены? Все записки будут удалены после службы.')) return;
+    try {
+        const resp = await fetch('http://155.212.138.18:3001/clear', { method: 'POST' });
+        if (resp.ok) {
+            alert('✅ Записки очищены.');
+            document.getElementById('admin-panel').style.display = 'none';
+        } else { alert('Ошибка очистки.'); }
+    } catch(e) { alert('Ошибка соединения.'); }
+}
+
+function showMessage(text, type) {
+    const el = document.getElementById('message');
+    el.textContent = text;
+    el.className = 'message ' + type;
+    document.getElementById('payment-btn').style.display = type === 'success' ? 'block' : 'none';
+}
+
+function copyPhone() {
+    navigator.clipboard.writeText('+79244605220').then(() => {
+        const hint = document.getElementById('copy-hint');
+        hint.textContent = '✓ Номер скопирован!';
+        setTimeout(() => { hint.textContent = 'нажмите, чтобы скопировать номер'; }, 2000);
+    }).catch(() => {});
+}
+</script>
+</body>
+</html>

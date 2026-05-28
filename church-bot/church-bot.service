@@ -1,0 +1,14 @@
+[Unit]
+Description=Church Bot - Zapiski
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/agent/church-bot
+Environment=BOT_TOKEN=8748548478:AAFfdZ3nTaoqzfIlvHUDbW5-CQNBoqggjZ4
+ExecStart=/usr/bin/node bot.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

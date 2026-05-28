@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Храм Рождества Христова — Айхал</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #F7EED8;
+            color: #2C1A0A;
+            min-height: 100vh;
+        }
+
+        /* ── Шапка — тёплый тёмный, как переплёт рукописи ── */
+        .header {
+            background: linear-gradient(160deg, #2C1208 0%, #5C2010 50%, #2C1208 100%);
+            color: #F5E6C8;
+            text-align: center;
+            padding: 28px 16px 16px;
+            border-bottom: 3px solid #C8A04A;
+        }
+        .header .cross { font-size: 38px; margin-bottom: 8px; color: #C8A04A; }
+        .header h1 { font-size: 21px; font-weight: normal; line-height: 1.45; letter-spacing: 0.5px; }
+        .header p { font-size: 15px; color: #C8A04A; margin-top: 6px; font-style: italic; }
+
+        /* ── Фото ── */
+        .photo-area {
+            width: 100%; height: 220px;
+            background: #2C1A0A;
+            position: relative; overflow: hidden;
+            border-bottom: 3px solid #C8A04A;
+        }
+        .photo-area img {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center 45%;
+            opacity: 0; transition: opacity 1.2s ease-in-out;
+        }
+        .photo-area img.active { opacity: 1; }
+        .slide-dots {
+            position: absolute; bottom: 8px; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 6px; z-index: 2;
+        }
+        .slide-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: rgba(200,160,74,0.5); cursor: pointer; transition: background 0.3s;
+        }
+        .slide-dot.active { background: #C8A04A; }
+
+        .main { max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ── Разделитель — золотые линии как в рукописях ── */
+        .divider {
+            text-align: center; color: #C8A04A;
+            font-size: 14px; letter-spacing: 8px;
+            margin: 8px 0 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #C8A04A, transparent);
+        }
+
+        /* ── Информационный блок ── */
+        .info-block {
+            background: #FDF6E3;
+            border: 1px solid #C8A04A;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .info-toggle {
+            width: 100%; padding: 16px 20px;
+            background: none; border: none;
+            font-family: 'Georgia', serif; font-size: 17px;
+            color: #3D1208; text-align: left; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .info-toggle .arrow { font-size: 14px; color: #C8A04A; transition: transform 0.2s; }
+        .info-toggle.open .arrow { transform: rotate(180deg); }
+        .info-content { display: none; padding: 0 20px 16px; background: #FDF6E3; }
+        .info-content.open { display: block; }
+        .info-content p { font-size: 15px; line-height: 1.7; color: #3A2010; margin-bottom: 10px; }
+        .info-content strong { color: #5C1A08; }
+        .info-content ul { padding-left: 18px; }
+        .info-content li { font-size: 15px; line-height: 1.7; color: #3A2010; margin-bottom: 4px; }
+
+        /* ── Главные кнопки — пергамент с золотым обрезом ── */
+        .big-btn {
+            display: block; width: 100%;
+            padding: 20px 20px 20px 24px;
+            margin-bottom: 14px; border: none;
+            border-radius: 10px;
+            font-family: 'Georgia', serif;
+            cursor: pointer; text-align: left;
+            box-shadow: 0 2px 8px rgba(44,18,8,0.12);
+            transition: transform 0.1s, box-shadow 0.1s;
+            border: 1px solid #D4B078;
+        }
+        .big-btn:active { transform: scale(0.98); box-shadow: 0 1px 4px rgba(44,18,8,0.1); }
+        .big-btn .icon { font-size: 34px; display: block; margin-bottom: 8px; }
+        .big-btn .title { font-size: 22px; font-weight: bold; display: block; letter-spacing: 0.3px; }
+        .big-btn .subtitle { font-size: 14px; margin-top: 4px; display: block; opacity: 0.7; font-style: italic; }
+        .btn-zapiski  { background: #FDF6E3; color: #3D1208; border-left: 5px solid #C8A04A; }
+        .btn-schedule { background: #EEF0F8; color: #1A1A5C; border-left: 5px solid #7A85BB; }
+        .btn-donate   { background: #F0F5EE; color: #1A3C1A; border-left: 5px solid #6A8B4A; }
+
+        /* Шаги */
+        .step-indicator { text-align: center; color: #8B5A2A; font-size: 15px; margin-bottom: 20px; }
+        .step-dots { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
+        .step-dot { width: 10px; height: 10px; border-radius: 50%; background: #D4B896; }
+        .step-dot.active { background: #8B1A1A; }
+
+        .section-title { font-size: 22px; color: #5C0A0A; margin-bottom: 20px; text-align: center; }
+
+        /* Тип записки */
+        .type-btn {
+            display: block; width: 100%; padding: 22px; margin-bottom: 16px;
+            border: 3px solid transparent; border-radius: 14px;
+            font-family: 'Georgia', serif; font-size: 22px; font-weight: bold;
+            cursor: pointer; text-align: center; transition: all 0.2s;
+        }
+        .type-btn .type-icon { font-size: 40px; display: block; margin-bottom: 8px; }
+        .type-btn .type-desc { font-size: 14px; font-weight: normal; margin-top: 6px; display: block; }
+        .type-btn-zdravie { background: #E8F5E8; color: #1A5C1A; border-color: #4A8B4A; }
+        .type-btn-zdravie:hover { background: #4A8B4A; color: #fff; }
+        .type-btn-upokoj { background: #EAEBF5; color: #1A1A5C; border-color: #4A4A8B; }
+        .type-btn-upokoj:hover { background: #4A4A8B; color: #fff; }
+        .type-btn-bolash { background: #FFF0E8; color: #7A2800; border-color: #C86040; }
+        .type-btn-bolash:hover { background: #C86040; color: #fff; }
+        .type-btn-putesh { background: #E8F0FF; color: #002A7A; border-color: #4A70BB; }
+        .type-btn-putesh:hover { background: #4A70BB; color: #fff; }
+
+        .btn-donate-sber {
+            display: block; width: 100%; padding: 22px 20px; margin-bottom: 16px;
+            background: linear-gradient(135deg, #21A038, #007A2F);
+            color: #fff; border: none; border-radius: 14px;
+            font-family: 'Georgia', serif; cursor: pointer; text-align: left;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15); transition: transform 0.1s;
+        }
+        .btn-donate-sber:active { transform: scale(0.98); }
+        .btn-donate-sber .icon { font-size: 36px; display: block; margin-bottom: 10px; }
+        .btn-donate-sber .title { font-size: 24px; font-weight: bold; display: block; }
+        .btn-donate-sber .subtitle { font-size: 15px; margin-top: 4px; display: block; opacity: 0.85; }
+
+        /* Экран пожертвований */
+        .donate-method {
+            background: #FFF8EE; border: 1px solid #D4B896; border-radius: 14px;
+            padding: 20px; margin-bottom: 14px;
+        }
+        .donate-method-title {
+            font-size: 18px; font-weight: bold; color: #5C0A0A; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .donate-phone {
+            font-size: 28px; font-weight: bold; color: #1A5C1A;
+            text-align: center; padding: 12px; letter-spacing: 1px;
+            background: #F0F7F0; border-radius: 10px; margin-bottom: 10px;
+        }
+        .donate-details {
+            font-size: 14px; color: #6B4A2A; line-height: 1.7; margin-bottom: 12px;
+        }
+        .btn-copy {
+            display: block; width: 100%; padding: 12px;
+            background: #1A5C1A; color: #fff; border: none; border-radius: 10px;
+            font-family: 'Georgia', serif; font-size: 16px; cursor: pointer;
+        }
+        .btn-copy:active { background: #0F3D0F; }
+        .donate-sbp-soon {
+            text-align: center; padding: 16px; color: #8B6A3A;
+            font-size: 15px; font-style: italic;
+        }
+
+        /* Молитва перед записками */
+        .prayer-block {
+            background: linear-gradient(135deg, #2C1208, #3D1A10);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            text-align: center;
+            border: 1px solid #C8A04A;
+        }
+        .prayer-cross { font-size: 22px; color: #C8A04A; margin-bottom: 8px; }
+        .prayer-text {
+            font-size: 15px; color: #F5E6C8;
+            font-style: italic; line-height: 1.7;
+        }
+
+        /* Ввод имён */
+        textarea {
+            width: 100%; padding: 16px;
+            border: 2px solid #C8A04A; border-radius: 14px;
+            font-family: 'Georgia', serif; font-size: 22px; line-height: 1.9;
+            background: #FFFBF5; color: #3E2010; resize: none; outline: none;
+        }
+        textarea:focus { border-color: #8B1A1A; }
+
+        .hint { font-size: 15px; color: #8B6A3A; margin-top: 10px; margin-bottom: 16px; line-height: 1.5; }
+        .hint-warning { font-size: 14px; color: #8B5A00; background: #FFF8DC; border: 1px solid #C8A04A; border-radius: 8px; padding: 10px 14px; margin-top: 10px; line-height: 1.5; }
+
+        /* Кнопки */
+        .btn-primary {
+            display: block; width: 100%; padding: 20px;
+            background: #8B1A1A; color: #F5E6C8; border: none;
+            border-radius: 14px; font-family: 'Georgia', serif; font-size: 22px;
+            cursor: pointer; margin-top: 16px; transition: background 0.2s;
+        }
+        .btn-primary:hover { background: #6B0A0A; }
+        .btn-secondary {
+            display: block; width: 100%; padding: 16px;
+            background: transparent; color: #8B5A2A;
+            border: 2px solid #C8A04A; border-radius: 14px;
+            font-family: 'Georgia', serif; font-size: 18px; cursor: pointer; margin-top: 12px;
+        }
+
+        /* Результат имён */
+        .names-result { margin-bottom: 16px; }
+        .name-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; margin-bottom: 8px;
+            border-radius: 10px; font-size: 20px;
+        }
+        .name-row.ok  { background: #E8F5E8; border: 1px solid #4A8B4A; }
+        .name-row.warn { background: #FFF8DC; border: 1px solid #C8A04A; }
+        .name-row .status { font-size: 18px; flex-shrink: 0; }
+        .name-row .name-text { flex: 1; }
+        .name-row .name-note { font-size: 13px; color: #8B6A3A; display: block; margin-top: 2px; }
+
+        /* Предпросмотр */
+        .names-preview {
+            background: #FFF8EE; border: 2px solid #C8A04A;
+            border-radius: 14px; padding: 20px; margin-bottom: 16px;
+        }
+        .preview-label { font-size: 13px; color: #8B6A3A; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .preview-type { font-size: 20px; font-weight: bold; color: #5C0A0A; margin-bottom: 12px; }
+        .names-list { font-size: 20px; line-height: 1.9; color: #3E2010; }
+
+        .price-block { text-align: center; margin: 16px 0; }
+        .price-label { font-size: 15px; color: #8B6A3A; margin-bottom: 8px; }
+        .price-note { font-size: 13px; color: #A08060; background: #FFF3CD; padding: 6px 12px; border-radius: 8px; display: inline-block; margin-top: 8px; }
+
+        /* Сумма пожертвования */
+        .amount-input {
+            width: 100%; padding: 20px;
+            border: 2px solid #C8A04A; border-radius: 14px;
+            font-family: 'Georgia', serif; font-size: 28px;
+            text-align: center; background: #FFFBF5;
+            color: #3E2010; outline: none; margin-bottom: 8px;
+        }
+        .amount-input:focus { border-color: #8B1A1A; }
+
+        /* Успех */
+        .success-icon { text-align: center; font-size: 80px; margin: 20px 0 16px; }
+        .success-title { text-align: center; font-size: 28px; color: #1A5C1A; margin-bottom: 16px; }
+        .success-text { text-align: center; font-size: 18px; color: #3E2010; line-height: 1.7; margin-bottom: 24px; }
+
+        .warn-banner {
+            background: #FFF3CD; border: 1px solid #C8A04A; border-radius: 10px;
+            padding: 12px 16px; margin-bottom: 16px; font-size: 15px; color: #8B5A00; line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="cross">✞</div>
+    <h1>Храм Рождества Христова</h1>
+    <p>посёлок Айхал</p>
+</div>
+
+<div class="photo-area" id="photoArea">
+    <img src="h1.jpg" alt="Храм" class="active" style="object-position:center 55%">
+    <img src="h3.jpg" alt="Храм" style="object-position:center 40%">
+    <div class="slide-dots">
+        <div class="slide-dot active" onclick="goSlide(0)"></div>
+        <div class="slide-dot" onclick="goSlide(1)"></div>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- Главный экран -->
+    <div class="screen active" id="screen-home">
+        <div class="divider">✦ ✦ ✦</div>
+
+        <!-- За кого подают записки -->
+        <div class="info-block">
+            <button class="info-toggle" onclick="toggleInfo(this)">
+                <span>📖 За кого подают записки?</span>
+                <span class="arrow">▼</span>
+            </button>
+            <div class="info-content">
+                <p><strong>За здравие</strong> подают за живых крещёных православных христиан — о здоровье, помощи Божией и спасении.</p>
+                <p><strong>За упокой</strong> подают за усопших крещёных православных христиан — об упокоении их душ.</p>
+                <p><strong>Важно:</strong></p>
+                <ul>
+                    <li>Имена пишутся только крещёные православные (из святцев)</li>
+                    <li>Пишите полное имя, данное при крещении, а не уменьшительное (Александр, не Саша; Мария, не Маша)</li>
+                    <li>Нельзя подавать за некрещёных, иноверцев и самоубийц</li>
+                </ul>
+            </div>
+        </div>
+
+        <button class="big-btn btn-zapiski" onclick="goTo('screen-choose-type')">
+            <span class="icon">📜</span>
+            <span class="title">Подать записку</span>
+            <span class="subtitle">За здравие или за упокой</span>
+        </button>
+
+        <button class="btn-donate-sber" onclick="goTo('screen-donate')">
+            <span class="icon">💳</span>
+            <span class="title">Пожертвование на храм</span>
+            <span class="subtitle">СберБанк · Любой банк · СБП</span>
+        </button>
+
+        <!-- Расписание богослужений -->
+        <div style="margin-top:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <span style="font-size:19px;color:#5C0A0A;font-weight:bold">📅 Расписание богослужений</span>
+                <a href="schedule.html" target="_blank" style="font-size:13px;color:#4A5ABB;text-decoration:none">↗ На всю страницу</a>
+            </div>
+            <iframe src="schedule.html"
+                style="width:100%;border:none;border-radius:12px;height:520px;display:block;box-shadow:0 3px 10px rgba(0,0,0,0.12)"
+                scrolling="yes">
+            </iframe>
+        </div>
+    </div>
+
+    <!-- Экран пожертвования -->
+    <div class="screen" id="screen-donate">
+        <div class="section-title">💳 Пожертвование на храм</div>
+        <div class="divider">✦ ✦ ✦</div>
+
+        <!-- Вариант 1: СберБанк Онлайн -->
+        <div class="donate-method">
+            <div class="donate-method-title">💚 СберБанк Онлайн</div>
+            <button class="btn-donate-sber" style="margin-bottom:0"
+                onclick="window.open('https://messenger.online.sberbank.ru/sl/G11bjkOBTlCp7iypZ','_blank')">
+                <span class="icon" style="font-size:28px;margin-bottom:6px">💳</span>
+                <span class="title" style="font-size:19px">Перейти в СберБанк Онлайн</span>
+                <span class="subtitle">Быстрый перевод через приложение Сбера</span>
+            </button>
+        </div>
+
+        <!-- Вариант 2: Любой банк по номеру телефона -->
+        <div class="donate-method">
+            <div class="donate-method-title">📞 Любой банк — по номеру телефона</div>
+            <div class="donate-phone">+7 (924) 460-52-20</div>
+            <div class="donate-details">
+                Получатель: <strong>Иван Александрович С.</strong><br>
+                Назначение: <strong>Пожертвование на храм</strong><br>
+                <span style="color:#8B5A2A">Работает через Тинькофф, ВТБ, Альфа, Газпром и любой другой банк</span>
+            </div>
+            <button class="btn-copy" onclick="copyDonatePhone()">📋 Скопировать номер</button>
+        </div>
+
+        <!-- Вариант 3: СБП -->
+        <div class="donate-method" id="donate-sbp-block">
+            <div class="donate-method-title">⚡ СБП — Система быстрых платежей</div>
+            <div class="donate-sbp-soon" id="sbp-soon">
+                🕐 QR-код СБП появится здесь в ближайшее время
+            </div>
+            <div id="sbp-link" style="display:none">
+                <button class="btn-donate-sber" style="margin-bottom:0;background:linear-gradient(135deg,#1565C0,#0D47A1)"
+                    onclick="window.open(SBP_URL,'_blank')">
+                    <span class="icon" style="font-size:28px;margin-bottom:6px">⚡</span>
+                    <span class="title" style="font-size:19px">Перейти к оплате СБП</span>
+                    <span class="subtitle">Любой банк — мгновенно</span>
+                </button>
+            </div>
+        </div>
+
+        <button class="btn-secondary" onclick="goTo('screen-home')" style="margin-top:8px">← На главную</button>
+    </div>
+
+    <!-- Выбор типа -->
+    <div class="screen" id="screen-choose-type">
+        <div class="step-indicator">
+            Шаг 1 из 3
+            <div class="step-dots">
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+        </div>
+        <div class="section-title">Какую записку подать?</div>
+        <button class="type-btn type-btn-zdravie" onclick="selectType('zdravie')">
+            <span class="type-icon">🕊</span>
+            За здравие
+            <span class="type-desc">За живых — о здоровье и благополучии</span>
+        </button>
+        <button class="type-btn type-btn-upokoj" onclick="selectType('upokoj')">
+            <span class="type-icon">✞</span>
+            За упокой
+            <span class="type-desc">За усопших — об упокоении душ</span>
+        </button>
+        <button class="type-btn type-btn-bolash" onclick="selectType('bolash')">
+            <span class="type-icon">🤒</span>
+            О болящих
+            <span class="type-desc">За больных — о скором выздоровлении</span>
+        </button>
+        <button class="type-btn type-btn-putesh" onclick="selectType('putesh')">
+            <span class="type-icon">✈️</span>
+            О путешествующих
+            <span class="type-desc">За тех, кто в дороге</span>
+        </button>
+        <button class="btn-secondary" onclick="goTo('screen-home')">← Назад</button>
+    </div>
+
+    <!-- Ввод имён -->
+    <div class="screen" id="screen-names">
+        <div class="step-indicator">
+            Шаг 2 из 3
+            <div class="step-dots">
+                <div class="step-dot"></div>
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+            </div>
+        </div>
+        <div class="section-title" id="names-title">Введите имена</div>
+
+        <div class="prayer-block">
+            <div class="prayer-cross">✞</div>
+            <div class="prayer-text">«Господи, помяни рабов Твоих и исполни их прошения,<br>яже ко спасению»</div>
+        </div>
+
+        <textarea id="namesInput" rows="8"
+            placeholder="Александра&#10;Марии&#10;Николая&#10;Анны"></textarea>
+        <p class="hint">Пишите каждое имя на новой строке.<br>Используйте полное православное имя (не уменьшительное).</p>
+        <button class="btn-primary" onclick="processNames()">Далее →</button>
+        <button class="btn-secondary" onclick="goTo('screen-choose-type')">← Назад</button>
+    </div>
+
+    <!-- Проверка имён -->
+    <div class="screen" id="screen-check-names">
+        <div class="step-indicator">
+            Шаг 2½ из 3
+            <div class="step-dots">
+                <div class="step-dot"></div>
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+            </div>
+        </div>
+        <div class="section-title">Проверьте имена</div>
+        <div id="warnBanner" class="warn-banner" style="display:none">
+            ⚠ Некоторые имена не найдены в православных святцах. Пожалуйста, уточните православное имя при крещении или исправьте написание.
+        </div>
+        <div class="names-result" id="namesResult"></div>
+        <button class="btn-primary" onclick="confirmNames()">Продолжить →</button>
+        <button class="btn-secondary" onclick="goTo('screen-names')">← Исправить имена</button>
+    </div>
+
+    <!-- Подтверждение -->
+    <div class="screen" id="screen-confirm">
+        <div class="step-indicator">
+            Шаг 3 из 3
+            <div class="step-dots">
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot active"></div>
+            </div>
+        </div>
+        <div class="section-title">Проверьте записку</div>
+        <div class="names-preview">
+            <div class="preview-label">Ваша записка</div>
+            <div class="preview-type" id="previewType"></div>
+            <div class="names-list" id="previewNames"></div>
+        </div>
+        <div class="price-block">
+            <div class="price-label">Пожертвование за записку</div>
+            <div class="price-note">⚠ Демо-режим — оплата не взимается</div>
+        </div>
+        <button class="btn-primary" onclick="submitNote()" style="background:linear-gradient(135deg,#21A038,#007A2F)">💳 Пожертвование</button>
+        <button class="btn-secondary" onclick="goTo('screen-check-names')">← Назад</button>
+    </div>
+
+    <!-- Успех: записка -->
+    <div class="screen" id="screen-success">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Записка принята!</div>
+        <div class="success-text">
+            Молитвы будут вознесены<br>за ваших близких.<br><br>
+            Да хранит вас Господь!
+        </div>
+        <div class="names-preview">
+            <div class="preview-label">Принято</div>
+            <div class="preview-type" id="successType"></div>
+            <div class="names-list" id="successNames"></div>
+        </div>
+        <button class="btn-donate-sber" onclick="window.open('https://messenger.online.sberbank.ru/sl/G11bjkOBTlCp7iypZ','_blank')" style="margin-top:16px;">
+            <span class="icon">💳</span>
+            <span class="title">Пожертвование на храм</span>
+            <span class="subtitle">Перевод через СберБанк Онлайн</span>
+        </button>
+        <button class="btn-primary" onclick="goTo('screen-home')" style="margin-top:12px;">На главную</button>
+    </div>
+
+
+    <!-- Скрытая очистка (admin) -->
+    <div id="admin-area" style="margin-top:30px;text-align:center">
+        <span onclick="toggleAdmin()" style="font-size:11px;color:#ddd;cursor:pointer;user-select:none">⚙</span>
+    </div>
+    <div id="admin-panel" style="display:none;margin-top:10px;padding:14px;background:#fff0f0;border:2px solid #e57373;border-radius:10px;text-align:center">
+        <div style="font-size:13px;color:#c62828;margin-bottom:10px;font-weight:bold">⚠️ Зона администратора</div>
+        <button onclick="clearNotes()" style="padding:12px 20px;background:#c62828;color:#fff;border:none;border-radius:8px;font-family:Georgia,serif;font-size:15px;cursor:pointer">
+            🗑 Очистить все записки после службы
+        </button>
+        <div style="font-size:11px;color:#999;margin-top:8px">Потребуется подтверждение</div>
+    </div>
+
+    <!-- Успех: пожертвование -->
+    <div class="screen" id="screen-donate-success">
+        <div class="success-icon">🙏</div>
+        <div class="success-title">Спасибо!</div>
+        <div class="success-text">
+            Ваше пожертвование принято.<br><br>
+            Храм благодарит вас<br>за помощь и заботу!
+        </div>
+        <button class="btn-primary" onclick="goTo('screen-home')">На главную</button>
+    </div>
+
+</div>
+
+<script>
+    let currentType = '';
+    let finalNames = []; // итоговый список в родительном падеже
+
+    // ─── СБП ссылка (пока пусто, заполним когда батюшка пришлёт) ─────────────
+    const SBP_URL = null; // заменить на ссылку СБП когда будет
+    if (SBP_URL) {
+        document.getElementById('sbp-soon').style.display = 'none';
+        document.getElementById('sbp-link').style.display = 'block';
+    }
+
+    function goTo(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function copyDonatePhone() {
+        const phone = '+79244605220';
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(phone).then(() => {
+                const btn = event.target;
+                btn.textContent = '✅ Скопировано!';
+                setTimeout(() => btn.textContent = '📋 Скопировать номер', 2000);
+            });
+        } else {
+            prompt('Скопируйте номер:', phone);
+        }
+    }
+
+    function toggleInfo(btn) {
+        btn.classList.toggle('open');
+        btn.nextElementSibling.classList.toggle('open');
+    }
+
+    const TYPE_LABELS = {
+        zdravie: '🕊 За здравие',
+        upokoj:  '✞ За упокой',
+        bolash:  '🤒 О болящих',
+        putesh:  '✈️ О путешествующих',
+    };
+
+    function selectType(type) {
+        currentType = type;
+        document.getElementById('names-title').textContent = (TYPE_LABELS[type] || type) + ' — имена';
+        document.getElementById('namesInput').value = '';
+        goTo('screen-names');
+    }
+
+    // ─── Полная таблица: любая форма → каноническое церковное имя ──────────
+    const allForms = {
+        // АВВАКУМ
+        'аввакум':'Аввакум','аввакума':'Аввакум',
+        // АГАФЬЯ
+        'агафья':'Агафья','агафьи':'Агафья','гаша':'Агафья','гаши':'Агафья',
+        // АГНИЯ
+        'агния':'Агния','агнии':'Агния',
+        // АГЛАИДА
+        'аглаида':'Аглаида','аглаиды':'Аглаида',
+        // АГРИППИНА
+        'агриппина':'Агриппина','агриппины':'Агриппина',
+        'груша':'Агриппина','груши':'Агриппина',
+        // АКИЛИНА
+        'акилина':'Акилина','акилины':'Акилина',
+        // АЛЕКСАНДР
+        'александр':'Александр',
+        'саша':'Александр','саши':'Александр','шура':'Александр','шуры':'Александр',
+        // АЛЕКСАНДРА
+        'александра':'Александра','александры':'Александра',
+        // АЛЕКСИЙ
+        'алексий':'Алексий','алексия':'Алексий',
+        'алексей':'Алексий','алексея':'Алексий',
+        'лёша':'Алексий','лёши':'Алексий','алёша':'Алексий','алёши':'Алексий',
+        // АЛЛА
+        'алла':'Алла','аллы':'Алла',
+        // АМВРОСИЙ
+        'амвросий':'Амвросий','амвросия':'Амвросий',
+        // АНАСТАСИЯ
+        'анастасия':'Анастасия','анастасии':'Анастасия',
+        'настя':'Анастасия','насти':'Анастасия','настенька':'Анастасия',
+        // АНАТОЛИЙ
+        'анатолий':'Анатолий','анатолия':'Анатолий',
+        'толя':'Анатолий','толи':'Анатолий','толик':'Анатолий',
+        // АНДРЕЙ
+        'андрей':'Андрей','андрея':'Андрей','андрюша':'Андрей','андрюши':'Андрей',
+        // АННА
+        'анна':'Анна','анны':'Анна',
+        'аня':'Анна','ани':'Анна','анечка':'Анна','нюра':'Анна','нюры':'Анна','нюша':'Анна',
+        // АНТОНИЙ
+        'антоний':'Антоний','антония':'Антоний',
+        'антон':'Антоний','антона':'Антоний','тоша':'Антоний','тоши':'Антоний',
+        // АНТОНИНА
+        'антонина':'Антонина','антонины':'Антонина',
+        'тоня':'Антонина','тони':'Антонина',
+        // АПОЛЛИНАРИЯ
+        'аполлинария':'Аполлинария','аполлинарии':'Аполлинария',
+        'полина':'Аполлинария','полины':'Аполлинария','поля':'Аполлинария','поли':'Аполлинария',
+        // АРКАДИЙ
+        'аркадий':'Аркадий','аркадия':'Аркадий','аркаша':'Аркадий','аркаши':'Аркадий',
+        // АРСЕНИЙ
+        'арсений':'Арсений','арсения':'Арсений',
+        // АРТЕМИЙ
+        'артемий':'Артемий','артемия':'Артемий',
+        'тёма':'Артемий','тёмы':'Артемий','артем':'Артемий','артема':'Артемий',
+        // АФАНАСИЙ
+        'афанасий':'Афанасий','афанасия':'Афанасий','афоня':'Афанасий','афони':'Афанасий',
+        // БОРИС
+        'борис':'Борис','бориса':'Борис','боря':'Борис','бори':'Борис',
+        // ВАЛЕНТИНА
+        'валентина':'Валентина','валентины':'Валентина','валя':'Валентина','вали':'Валентина',
+        // ВАЛЕРИЙ
+        'валерий':'Валерий','валера':'Валерий','валеры':'Валерий',
+        // ВАЛЕРИЯ
+        'валерия':'Валерия','валерии':'Валерия','лера':'Валерия','леры':'Валерия',
+        // ВАРВАРА
+        'варвара':'Варвара','варвары':'Варвара','варя':'Варвара','вари':'Варвара',
+        // ВАРЛААМ
+        'варлаам':'Варлаам','варлаама':'Варлаам',
+        // ВАРНАВА
+        'варнава':'Варнава','варнавы':'Варнава',
+        // ВАРФОЛОМЕЙ
+        'варфоломей':'Варфоломей','варфоломея':'Варфоломей',
+        // ВАСИЛИЙ
+        'василий':'Василий','василия':'Василий','вася':'Василий','васи':'Василий',
+        // ВАСИЛИСА
+        'василиса':'Василиса','василисы':'Василиса',
+        // ВАССА
+        'васса':'Васса','вассы':'Васса',
+        // ВЕНИАМИН
+        'вениамин':'Вениамин','вениамина':'Вениамин','веня':'Вениамин','вени':'Вениамин',
+        // ВЕРА
+        'вера':'Вера','веры':'Вера',
+        // ВЕРОНИКА
+        'вероника':'Вероника','вероники':'Вероника','ника':'Вероника',
+        // ВИКТОР
+        'виктор':'Виктор','виктора':'Виктор',
+        'витя':'Виктор','вити':'Виктор','витю':'Виктор','витенька':'Виктор','витеньки':'Виктор',
+        // ВИКТОРИЯ
+        'виктория':'Виктория','виктории':'Виктория','вика':'Виктория','вики':'Виктория',
+        // ВИССАРИОН
+        'виссарион':'Виссарион','виссариона':'Виссарион',
+        // ВИТАЛИЙ
+        'виталий':'Виталий','виталия':'Виталий',
+        // ВЛАДИМИР
+        'владимир':'Владимир','владимира':'Владимир',
+        'вова':'Владимир','вовы':'Владимир','володя':'Владимир','володи':'Владимир',
+        // ВЛАСИЙ
+        'власий':'Власий','власия':'Власий','влас':'Власий','власа':'Власий',
+        // ВЯЧЕСЛАВ
+        'вячеслав':'Вячеслав','вячеслава':'Вячеслав',
+        'слава':'Вячеслав','славы':'Вячеслав',
+        // ГАВРИИЛ
+        'гавриил':'Гавриил','гавриила':'Гавриил','гаврюша':'Гавриил','гаврюши':'Гавриил',
+        // ГАЛИНА
+        'галина':'Галина','галины':'Галина','галя':'Галина','гали':'Галина',
+        // ГЕННАДИЙ
+        'геннадий':'Геннадий','геннадия':'Геннадий','гена':'Геннадий','гены':'Геннадий',
+        // ГЕОРГИЙ
+        'георгий':'Георгий','георгия':'Георгий',
+        'жора':'Георгий','жоры':'Георгий','гоша':'Георгий','гоши':'Георгий',
+        'юрий':'Георгий','юрия':'Георгий','юра':'Георгий','юры':'Георгий',
+        // ГЕРМАН
+        'герман':'Герман','германа':'Герман',
+        // ГЛИКЕРИЯ
+        'гликерия':'Гликерия','гликерии':'Гликерия','глаша':'Гликерия','глаши':'Гликерия',
+        // ГЛЕБ
+        'глеб':'Глеб','глеба':'Глеб',
+        // ГРИГОРИЙ
+        'григорий':'Григорий','григория':'Григорий','гриша':'Григорий','гриши':'Григорий',
+        // ДАНИИЛ
+        'даниил':'Даниил','даниила':'Даниил',
+        'даня':'Даниил','данила':'Даниил','данилы':'Даниил',
+        // ДАРЬЯ
+        'дарья':'Дарья','дарьи':'Дарья','даша':'Дарья','даши':'Дарья','дашенька':'Дарья',
+        // ДЕНИС → ДИОНИСИЙ
+        'дионисий':'Дионисий','дионисия':'Дионисий',
+        'денис':'Дионисий','дениса':'Дионисий',
+        // ДИМИТРИЙ
+        'димитрий':'Димитрий','димитрия':'Димитрий',
+        'дмитрий':'Димитрий','дмитрия':'Димитрий',
+        'дима':'Димитрий','димы':'Димитрий','митя':'Димитрий','мити':'Димитрий',
+        // ДОМНА
+        'домна':'Домна','домны':'Домна',
+        // ЕВГЕНИЙ
+        'евгений':'Евгений','женя':'Евгений','жени':'Евгений',
+        // ЕВГЕНИЯ
+        'евгения':'Евгения','евгении':'Евгения',
+        // ЕВДОКИЯ
+        'евдокия':'Евдокия','евдокии':'Евдокия',
+        'дуня':'Евдокия','дуни':'Евдокия','авдотья':'Евдокия','авдотьи':'Евдокия',
+        // ЕВЛАМПИЯ
+        'евлампия':'Евлампия','евлампии':'Евлампия',
+        // ЕВФРОСИНИЯ
+        'евфросиния':'Евфросиния','евфросинии':'Евфросиния',
+        'ефросиния':'Евфросиния','ефросинья':'Евфросиния',
+        'фрося':'Евфросиния','фроси':'Евфросиния',
+        // ЕВСТАФИЙ
+        'евстафий':'Евстафий','евстафия':'Евстафий','остап':'Евстафий',
+        // ЕКАТЕРИНА
+        'екатерина':'Екатерина','екатерины':'Екатерина',
+        'катя':'Екатерина','кати':'Екатерина','катюша':'Екатерина','катюши':'Екатерина',
+        // ЕЛЕНА
+        'елена':'Елена','елены':'Елена','лена':'Елена','лены':'Елена',
+        // ЕЛИЗАВЕТА
+        'елизавета':'Елизавета','елизаветы':'Елизавета',
+        'лиза':'Елизавета','лизы':'Елизавета','лизонька':'Елизавета',
+        // ЕМИЛИАН
+        'емилиан':'Емилиан','емилиана':'Емилиан',
+        'емельян':'Емилиан','емельяна':'Емилиан',
+        // ЕРМОЛАЙ
+        'ермолай':'Ермолай','ермолая':'Ермолай',
+        // ЗАХАРИЯ
+        'захария':'Захария','захарии':'Захария','захар':'Захария','захара':'Захария',
+        // ЗИНАИДА
+        'зинаида':'Зинаида','зинаиды':'Зинаида','зина':'Зинаида','зины':'Зинаида',
+        // ЗИНОВИЙ
+        'зиновий':'Зиновий','зиновия':'Зиновий',
+        // ЗОЯ
+        'зоя':'Зоя','зои':'Зоя',
+        // ЗОСИМА
+        'зосима':'Зосима','зосимы':'Зосима',
+        // ИАКОВ
+        'иаков':'Иаков','иакова':'Иаков','яков':'Иаков','якова':'Иаков','яша':'Иаков','яши':'Иаков',
+        // ИЕРЕМИЯ
+        'иеремия':'Иеремия','иеремии':'Иеремия','еремей':'Иеремия','еремея':'Иеремия',
+        // ИЛАРИОН
+        'иларион':'Иларион','илариона':'Иларион','ларион':'Иларион',
+        // ИЛИЯ
+        'илия':'Илия','илии':'Илия','илья':'Илия','ильи':'Илия','ильюша':'Илия','ильюши':'Илия',
+        // ИННОКЕНТИЙ
+        'иннокентий':'Иннокентий','иннокентия':'Иннокентий',
+        'кеша':'Иннокентий','кеши':'Иннокентий',
+        // ИОАНН
+        'иоанн':'Иоанн','иоанна':'Иоанн',
+        'иван':'Иоанн','ивана':'Иоанн',
+        'ваня':'Иоанн','вани':'Иоанн','ванечка':'Иоанн','ванюша':'Иоанн','ванюши':'Иоанн',
+        // ИОВ
+        'иов':'Иов','иова':'Иов',
+        // ИОНА
+        'иона':'Иона','ионы':'Иона',
+        // ИОСИФ
+        'иосиф':'Иосиф','иосифа':'Иосиф','осип':'Иосиф','осипа':'Иосиф',
+        // ИПАТИЙ
+        'ипатий':'Ипатий','ипатия':'Ипатий',
+        // ИППОЛИТ
+        'ипполит':'Ипполит','ипполита':'Ипполит',
+        // ИРИНЕЙ
+        'ириней':'Ириней','иринея':'Ириней',
+        // ИРИНА
+        'ирина':'Ирина','ирины':'Ирина','ира':'Ирина','иры':'Ирина',
+        // ИСААК
+        'исаак':'Исаак','исаака':'Исаак',
+        // ИСИДОР
+        'исидор':'Исидор','исидора':'Исидор','сидор':'Исидор','сидора':'Исидор',
+        // ИУЛИАНИЯ
+        'иулиания':'Иулиания','иулиании':'Иулиания',
+        'ульяна':'Иулиания','ульяны':'Иулиания',
+        'юлия':'Иулиания','юлии':'Иулиания','юля':'Иулиания','юли':'Иулиания',
+        // КАПИТОЛИНА
+        'капитолина':'Капитолина','капитолины':'Капитолина',
+        // КАРП
+        'карп':'Карп','карпа':'Карп',
+        // КИРИЛЛ
+        'кирилл':'Кирилл','кирилла':'Кирилл','кирюша':'Кирилл','кирюши':'Кирилл',
+        // КЛАВДИЯ
+        'клавдия':'Клавдия','клавдии':'Клавдия','клава':'Клавдия','клавы':'Клавдия',
+        // КЛИМЕНТ
+        'климент':'Климент','климента':'Климент',
+        // КОНСТАНТИН
+        'константин':'Константин','константина':'Константин',
+        'костя':'Константин','кости':'Константин',
+        // КОРНИЛИЙ
+        'корнилий':'Корнилий','корнилия':'Корнилий','корней':'Корнилий','корнея':'Корнилий',
+        // КОСМА
+        'косма':'Косма','космы':'Косма',
+        'кузьма':'Косма','кузьмы':'Косма','козьма':'Косма','кузя':'Косма','кузи':'Косма',
+        // КСЕНИЯ
+        'ксения':'Ксения','ксении':'Ксения','ксюша':'Ксения','ксюши':'Ксения',
+        // ЛАВРЕНТИЙ
+        'лаврентий':'Лаврентий','лаврентия':'Лаврентий',
+        // ЛАЗАРЬ
+        'лазарь':'Лазарь','лазаря':'Лазарь',
+        // ЛАРИСА
+        'лариса':'Лариса','ларисы':'Лариса',
+        // ЛЕВ
+        'лев':'Лев','льва':'Лев',
+        // ЛЕОНИД
+        'леонид':'Леонид','леонида':'Леонид','лёня':'Леонид','лёни':'Леонид',
+        // ЛЕОНТИЙ
+        'леонтий':'Леонтий','леонтия':'Леонтий',
+        // ЛИДИЯ
+        'лидия':'Лидия','лидии':'Лидия','лида':'Лидия','лиды':'Лидия',
+        // ЛОНГИН
+        'лонгин':'Лонгин','лонгина':'Лонгин',
+        // ЛУКА
+        'лука':'Лука','луки':'Лука',
+        // ЛУКИЯ
+        'лукия':'Лукия','лукии':'Лукия',
+        // ЛЮБОВЬ
+        'любовь':'Любовь','любови':'Любовь','люба':'Любовь','любы':'Любовь',
+        // ЛЮДМИЛА
+        'людмила':'Людмила','людмилы':'Людмила',
+        'люда':'Людмила','люды':'Людмила','люся':'Людмила',
+        // МАКАРИЙ
+        'макарий':'Макарий','макария':'Макарий','макар':'Макарий','макара':'Макарий',
+        // МАКРИНА
+        'макрина':'Макрина','макрины':'Макрина',
+        // МАКСИМ
+        'максим':'Максим','максима':'Максим',
+        // МАРГАРИТА
+        'маргарита':'Маргарита','маргариты':'Маргарита','рита':'Маргарита','риты':'Маргарита',
+        // МАРИНА
+        'марина':'Марина','марины':'Марина',
+        // МАРК
+        'марк':'Марк','марка':'Марк',
+        // МАРИЯ
+        'мария':'Мария','марии':'Мария',
+        'маша':'Мария','маши':'Мария','машенька':'Мария','маня':'Мария','мани':'Мария',
+        // МАРТА/МАРФА
+        'марфа':'Марфа','марфы':'Марфа',
+        // МАРТИН
+        'мартин':'Мартин',
+        // МАРТИНА (женское имя)
+        'мартина':'Мартина','мартины':'Мартина',
+        // МАТРОНА
+        'матрона':'Матрона','матроны':'Матрона',
+        'матрёна':'Матрона','матрёны':'Матрона','матреша':'Матрона',
+        // МАТФЕЙ
+        'матфей':'Матфей','матфея':'Матфей','матвей':'Матфей','матвея':'Матфей',
+        // МЕЛАНИЯ
+        'мелания':'Мелания','мелании':'Мелания',
+        'меланья':'Мелания','меланьи':'Мелания',
+        // МЕФОДИЙ
+        'мефодий':'Мефодий','мефодия':'Мефодий',
+        // МИХАИЛ
+        'михаил':'Михаил','михаила':'Михаил','миша':'Михаил','миши':'Михаил',
+        // МИНА
+        'мина':'Мина','мины':'Мина',
+        // МИТРОФАН
+        'митрофан':'Митрофан','митрофана':'Митрофан',
+        // МОИСЕЙ
+        'моисей':'Моисей','моисея':'Моисей',
+        // НАДЕЖДА
+        'надежда':'Надежда','надежды':'Надежда','надя':'Надежда','нади':'Надежда',
+        // НАЗАРИЙ
+        'назарий':'Назарий','назария':'Назарий','назар':'Назарий','назара':'Назарий',
+        // НАТАЛИЯ
+        'наталия':'Наталия','наталии':'Наталия',
+        'наталья':'Наталия','натальи':'Наталия','наташа':'Наталия','наташи':'Наталия',
+        // НЕСТОР
+        'нестор':'Нестор','нестора':'Нестор',
+        // НИКИТА
+        'никита':'Никита','никиты':'Никита',
+        // НИКИФОР
+        'никифор':'Никифор','никифора':'Никифор',
+        // НИКОДИМ
+        'никодим':'Никодим','никодима':'Никодим',
+        // НИКОН
+        'никон':'Никон','никона':'Никон',
+        // НИКОЛАЙ
+        'николай':'Николай','николая':'Николай',
+        'коля':'Николай','коли':'Николай','колечка':'Николай','колюня':'Николай',
+        // НИЛ
+        'нил':'Нил','нила':'Нил',
+        // НИМФОДОРА
+        'нимфодора':'Нимфодора','нимфодоры':'Нимфодора',
+        // НИНА
+        'нина':'Нина','нины':'Нина',
+        // НОННА
+        'нонна':'Нонна','нонны':'Нонна',
+        // ОЛЕГ
+        'олег':'Олег','олега':'Олег',
+        // ОЛИМПИАДА
+        'олимпиада':'Олимпиада','олимпиады':'Олимпиада','липа':'Олимпиада',
+        // ОЛЬГА
+        'ольга':'Ольга','ольги':'Ольга','оля':'Ольга','оли':'Ольга',
+        // ОНУФРИЙ
+        'онуфрий':'Онуфрий','онуфрия':'Онуфрий',
+        // ПАИСИЙ
+        'паисий':'Паисий','паисия':'Паисий',
+        // ПАВЕЛ
+        'павел':'Павел','павла':'Павел','паша':'Павел','паши':'Павел',
+        // ПАВЛИНА
+        'павлина':'Павлина','павлины':'Павлина',
+        // ПАНКРАТИЙ
+        'панкратий':'Панкратий','панкратия':'Панкратий',
+        // ПАНТЕЛЕИМОН
+        'пантелеимон':'Пантелеимон','пантелеимона':'Пантелеимон',
+        // ПАРАСКЕВА
+        'параскева':'Параскева','параскевы':'Параскева',
+        'прасковья':'Параскева','прасковьи':'Параскева',
+        // ПАРФЕНИЙ
+        'парфений':'Парфений','парфения':'Парфений',
+        // ПАФНУТИЙ
+        'пафнутий':'Пафнутий','пафнутия':'Пафнутий',
+        // ПЕЛАГИЯ
+        'пелагия':'Пелагия','пелагии':'Пелагия',
+        'пелагея':'Пелагия','пелагеи':'Пелагия',
+        // ПЁТР
+        'пётр':'Пётр','петр':'Пётр','петра':'Пётр','петя':'Пётр','пети':'Пётр',
+        // ПИМЕН
+        'пимен':'Пимен','пимена':'Пимен',
+        // ПЛАТОН
+        'платон':'Платон','платона':'Платон',
+        // ПОЛИКАРП
+        'поликарп':'Поликарп','поликарпа':'Поликарп',
+        // ПОРФИРИЙ
+        'порфирий':'Порфирий','порфирия':'Порфирий',
+        // ПРОКОПИЙ
+        'прокопий':'Прокопий','прокопия':'Прокопий',
+        // ПРОТАСИЙ
+        'протасий':'Протасий','протасия':'Протасий',
+        // ПРОХОР
+        'прохор':'Прохор','прохора':'Прохор',
+        // ПУЛЬХЕРИЯ
+        'пульхерия':'Пульхерия','пульхерии':'Пульхерия',
+        // РАИСА
+        'раиса':'Раиса','раисы':'Раиса','рая':'Раиса','раи':'Раиса',
+        // РАФАИЛ
+        'рафаил':'Рафаил','рафаила':'Рафаил',
+        // РИПСИМИЯ
+        'рипсимия':'Рипсимия','рипсимии':'Рипсимия',
+        // РОМАН
+        'роман':'Роман','романа':'Роман','рома':'Роман','ромы':'Роман',
+        // РОСТИСЛАВ
+        'ростислав':'Ростислав','ростислава':'Ростислав',
+        // САВВА
+        'савва':'Савва','саввы':'Савва',
+        // САМУИЛ
+        'самуил':'Самуил','самуила':'Самуил',
+        // СЕРАФИМ
+        'серафим':'Серафим',
+        // СЕРАФИМА
+        'серафима':'Серафима','серафимы':'Серафима',
+        // СЕРАПИОН
+        'серапион':'Серапион','серапиона':'Серапион',
+        // СЕРГИЙ (мужское — однозначно)
+        'сергий':'Сергий',
+        'серёжа':'Сергий','серёжи':'Сергий','серёга':'Сергий',
+        // сергей / сергия — неоднозначные, см. AMBIGUOUS_MAP
+        // СИЛУАН
+        'силуан':'Силуан','силуана':'Силуан',
+        // СИЛЬВЕСТР
+        'сильвестр':'Сильвестр','сильвестра':'Сильвестр',
+        // СИМЕОН
+        'симеон':'Симеон','симеона':'Симеон',
+        'семён':'Симеон','семёна':'Симеон','семен':'Симеон','семена':'Симеон',
+        // СИМОН
+        'симон':'Симон','симона':'Симон',
+        // СИСОЙ
+        'сисой':'Сисой','сисоя':'Сисой',
+        // СПИРИДОН
+        'спиридон':'Спиридон','спиридона':'Спиридон',
+        // СТАХИЙ
+        'стахий':'Стахий','стахия':'Стахий',
+        // СТЕФАН
+        'стефан':'Стефан','стефана':'Стефан',
+        'степан':'Стефан','степана':'Стефан','стёпа':'Стефан','стёпы':'Стефан',
+        // СУСАННА
+        'сусанна':'Сусанна','сусанны':'Сусанна',
+        // ТАИСИЯ
+        'таисия':'Таисия','таисии':'Таисия','таиса':'Таисия',
+        // ТАМАРА
+        'тамара':'Тамара','тамары':'Тамара',
+        // ТАРАСИЙ
+        'тарасий':'Тарасий','тарасия':'Тарасий',
+        'тарас':'Тарасий','тараса':'Тарасий',
+        // ТАТЬЯНА
+        'татьяна':'Татьяна','татьяны':'Татьяна',
+        'таня':'Татьяна','тани':'Татьяна','танюша':'Татьяна','танечка':'Татьяна',
+        // ТИМОФЕЙ
+        'тимофей':'Тимофей','тимофея':'Тимофей','тима':'Тимофей','тимоша':'Тимофей',
+        // ТИМОН
+        'тимон':'Тимон','тимона':'Тимон',
+        // ТИХОН
+        'тихон':'Тихон','тихона':'Тихон','тиша':'Тихон','тиши':'Тихон',
+        // ТИТ
+        'тит':'Тит','тита':'Тит',
+        // ТРОФИМ
+        'трофим':'Трофим','трофима':'Трофим',
+        // ФЕВРОНИЯ
+        'феврония':'Феврония','февронии':'Феврония',
+        // ФЕОДОР
+        'феодор':'Феодор',
+        'фёдор':'Феодор','федор':'Феодор',
+        'федя':'Феодор','феди':'Феодор',
+        // ФЕОДОРА
+        'феодора':'Феодора','феодоры':'Феодора',
+        // ФЕОДОСИЙ
+        'феодосий':'Феодосий',
+        // ФЕОДОСИЯ
+        'феодосия':'Феодосия','феодосии':'Феодосия',
+        // ФЕОФАН
+        'феофан':'Феофан','феофана':'Феофан',
+        // ФЕОФИЛ
+        'феофил':'Феофил','феофила':'Феофил',
+        // ФЕРАПОНТ
+        'ферапонт':'Ферапонт','ферапонта':'Ферапонт',
+        // ФЁКЛА
+        'фёкла':'Фёкла','фёклы':'Фёкла','фекла':'Фёкла','феклы':'Фёкла',
+        // ФИЛАРЕТ
+        'филарет':'Филарет','филарета':'Филарет',
+        // ФИЛИПП
+        'филипп':'Филипп','филиппа':'Филипп','филя':'Филипп','фили':'Филипп',
+        // ФЛОР
+        'флор':'Флор','флора':'Флор',
+        // ФОМА
+        'фома':'Фома','фомы':'Фома',
+        // ФОКА
+        'фока':'Фока','фоки':'Фока',
+        // ФОТИНИЯ
+        'фотиния':'Фотиния','фотинии':'Фотиния',
+        'светлана':'Фотиния','светланы':'Фотиния','света':'Фотиния','светы':'Фотиния',
+        // ХАРИТИНА
+        'харитина':'Харитина','харитины':'Харитина',
+        // ХАРИТОН
+        'харитон':'Харитон','харитона':'Харитон',
+        // ХРИСТИНА
+        'христина':'Христина','христины':'Христина',
+        'кристина':'Христина','кристины':'Христина',
+        // ХРИСТОФОР
+        'христофор':'Христофор','христофора':'Христофор',
+        // ЮВЕНАЛИЙ
+        'ювеналий':'Ювеналий','ювеналия':'Ювеналий',
+        // ЯРОСЛАВ
+        'ярослав':'Ярослав','ярослава':'Ярослав',
+        // ВЛАДИСЛАВ
+        'владислав':'Владислав','владислава':'Владислав',
+        'влад':'Владислав','влади':'Владислав','владик':'Владислав',
+    };
+
+    function findCanonical(word) {
+        const key = word.toLowerCase().trim().replace(/ё/g, 'е');
+        for (const [k, v] of Object.entries(allForms)) {
+            if (k.replace(/ё/g, 'е') === key) return v;
+        }
+        return null;
+    }
+
+    // ─── Родительный падеж канонического имени ─────────────────────────────
+    const specialGen = {
+        'любовь':'Любови',
+        'павел':'Павла',
+        'лев':'Льва',
+        'фёкла':'Фёклы',
+        'пётр':'Петра',
+    };
+
+    function toGenitive(name) {
+        name = name.trim();
+        if (!name) return '';
+        name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        const key = name.toLowerCase();
+        if (specialGen[key]) return specialGen[key];
+        if (name.endsWith('ий')) return name.slice(0,-2)+'ия';
+        if (name.endsWith('ия')) return name.slice(0,-2)+'ии';
+        if (name.endsWith('ья')) return name.slice(0,-1)+'и';
+        if (name.endsWith('ей')) return name.slice(0,-1)+'я';
+        if (name.endsWith('ай')) return name.slice(0,-1)+'я';
+        if (name.endsWith('й'))  return name.slice(0,-1)+'я';
+        const velar = ['г','к','х','ж','ш','щ','ч'];
+        if (name.endsWith('а')) {
+            const prev = name[name.length-2].toLowerCase();
+            return name.slice(0,-1)+(velar.includes(prev)?'и':'ы');
+        }
+        if (name.endsWith('я')) return name.slice(0,-1)+'и';
+        const cons=['б','в','г','д','ж','з','к','л','м','н','п','р','с','т','ф','х','ц','ч','ш','щ'];
+        if (cons.includes(name[name.length-1].toLowerCase())) return name+'а';
+        if (name.endsWith('ь')) return name.slice(0,-1)+'я';
+        return name;
+    }
+
+    // ─── Неоднозначные имена (мужское/женское) ─────────────────────────────
+    const AMBIGUOUS_MAP = {
+        'александр': { label:'Александр / Александра', male:{canonical:'Александр',gen:'Александра'}, female:{canonical:'Александра',gen:'Александры'} },
+        'александра': { label:'Александр / Александра', male:{canonical:'Александр',gen:'Александра'}, female:{canonical:'Александра',gen:'Александры'} },
+        'саша':       { label:'Александр / Александра', male:{canonical:'Александр',gen:'Александра'}, female:{canonical:'Александра',gen:'Александры'} },
+        'шура':       { label:'Александр / Александра', male:{canonical:'Александр',gen:'Александра'}, female:{canonical:'Александра',gen:'Александры'} },
+        'евгений':    { label:'Евгений / Евгения',      male:{canonical:'Евгений',  gen:'Евгения'},   female:{canonical:'Евгения',  gen:'Евгении'} },
+        'евгения':    { label:'Евгений / Евгения',      male:{canonical:'Евгений',  gen:'Евгения'},   female:{canonical:'Евгения',  gen:'Евгении'} },
+        'женя':       { label:'Евгений / Евгения',      male:{canonical:'Евгений',  gen:'Евгения'},   female:{canonical:'Евгения',  gen:'Евгении'} },
+        'валерий':    { label:'Валерий / Валерия',      male:{canonical:'Валерий',  gen:'Валерия'},   female:{canonical:'Валерия',  gen:'Валерии'} },
+        'валерия':    { label:'Валерий / Валерия',      male:{canonical:'Валерий',  gen:'Валерия'},   female:{canonical:'Валерия',  gen:'Валерии'} },
+        'валера':     { label:'Валерий / Валерия',      male:{canonical:'Валерий',  gen:'Валерия'},   female:{canonical:'Валерия',  gen:'Валерии'} },
+        'лера':       { label:'Валерий / Валерия',      male:{canonical:'Валерий',  gen:'Валерия'},   female:{canonical:'Валерия',  gen:'Валерии'} },
+        'сергей':     { label:'Сергий / Сергия',        male:{canonical:'Сергий',   gen:'Сергия'},    female:{canonical:'Сергия',   gen:'Сергии'} },
+        'сергея':     { label:'Сергий / Сергия',        male:{canonical:'Сергий',   gen:'Сергия'},    female:{canonical:'Сергия',   gen:'Сергии'} },
+        'сергия':     { label:'Сергий / Сергия',        male:{canonical:'Сергий',   gen:'Сергия'},    female:{canonical:'Сергия',   gen:'Сергии'} },
+    };
+
+    function findAmbiguous(name) {
+        const key = name.toLowerCase().trim().replace(/ё/g,'е');
+        return AMBIGUOUS_MAP[key] || null;
+    }
+
+    function chooseGender(btn, gender) {
+        const row = btn.closest('.name-row');
+        const ambig = JSON.parse(row.dataset.ambig);
+        const choice = gender === 'm' ? ambig.male : ambig.female;
+        const original = row.dataset.original;
+        row.dataset.canonical = choice.canonical;
+        row.dataset.ambigResolved = '1';
+        row.className = 'name-row ok';
+        row.innerHTML = `
+            <span class="status" style="font-size:24px;color:#1A5C1A">✓</span>
+            <span class="name-text">
+                <span style="color:#999;text-decoration:line-through">${original}</span> → <b style="color:#1A5C1A;font-size:22px">${choice.gen}</b>
+                <span class="name-note" style="color:#666;font-size:15px">Церковное имя: ${choice.canonical}</span>
+            </span>`;
+        // Проверяем — все ли неоднозначные имена разрешены
+        const allOk = [...document.querySelectorAll('#namesResult .name-row')]
+            .every(r => r.className.includes('ok') || r.dataset.deleted === '1');
+        document.getElementById('warnBanner').style.display = allOk ? 'none' : 'block';
+    }
+
+    // ─── Обработка имён ────────────────────────────────────────────────────
+    function processNames() {
+        const input = document.getElementById('namesInput').value;
+        const names = input.split('\n').map(n => n.trim()).filter(n => n);
+        if (!names.length) { alert('Пожалуйста, введите хотя бы одно имя'); return; }
+
+        const result = document.getElementById('namesResult');
+        result.innerHTML = '';
+        let hasUnknown = false;
+
+        names.forEach(name => {
+            const ambig = findAmbiguous(name);
+            const canonical = ambig ? null : findCanonical(name);
+            const row = document.createElement('div');
+            row.dataset.original = name;
+
+            if (ambig) {
+                // Неоднозначное имя — показываем выбор пола
+                hasUnknown = true;
+                row.className = 'name-row warn';
+                row.dataset.canonical = '';
+                row.dataset.ambig = JSON.stringify(ambig);
+                row.innerHTML = `
+                    <span class="name-text" style="flex:1">
+                        <b style="color:#8B5A00;font-size:20px">«${name}»</b> — мужское или женское?
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+                            <button onclick="chooseGender(this,'m')"
+                                style="padding:14px 8px;background:#E8F0FF;border:2px solid #4A6ABB;border-radius:10px;font-size:17px;cursor:pointer;font-family:Georgia,serif;color:#1A2A6C">
+                                ♂ ${ambig.male.canonical}<br>
+                                <span style="font-size:13px;opacity:0.75">(род. ${ambig.male.gen})</span>
+                            </button>
+                            <button onclick="chooseGender(this,'f')"
+                                style="padding:14px 8px;background:#FFE8F5;border:2px solid #BB4A8B;border-radius:10px;font-size:17px;cursor:pointer;font-family:Georgia,serif;color:#6C1A4A">
+                                ♀ ${ambig.female.canonical}<br>
+                                <span style="font-size:13px;opacity:0.75">(род. ${ambig.female.gen})</span>
+                            </button>
+                        </div>
+                    </span>`;
+            } else if (canonical) {
+                const changed = canonical.toLowerCase().replace(/ё/g,'е') !== name.toLowerCase().replace(/ё/g,'е');
+                const gen = toGenitive(canonical);
+                row.className = 'name-row ok';
+                row.dataset.canonical = canonical;
+                row.innerHTML = `
+                    <span class="status" style="font-size:24px;color:#1A5C1A">✓</span>
+                    <span class="name-text">
+                        ${changed
+                            ? `<span style="color:#999;text-decoration:line-through">${name}</span> → <b style="color:#1A5C1A;font-size:22px">${gen}</b>`
+                            : `<b style="color:#1A5C1A;font-size:22px">${gen}</b>`}
+                        <span class="name-note" style="color:#666;font-size:15px">Церковное имя: ${canonical}</span>
+                    </span>`;
+            } else {
+                hasUnknown = true;
+                row.className = 'name-row warn';
+                row.dataset.canonical = '';
+                row.innerHTML = `
+                    <span class="status" style="font-size:22px">⚠️</span>
+                    <span class="name-text" style="flex:1">
+                        <b style="color:#8B1A1A">«${name}»</b>
+                        <span class="name-note" style="color:#8B1A1A;font-weight:bold">Нет в православных святцах — перепишите или удалите</span>
+                        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+                            <input type="text" class="fix-input" placeholder="Введите православное имя"
+                                style="flex:1;padding:12px;font-size:18px;border:2px solid #C8A04A;border-radius:10px;font-family:Georgia,serif;outline:none"
+                                oninput="checkFixInput(this)">
+                            <button onclick="deleteName(this)"
+                                style="padding:12px 16px;background:#fff0f0;border:2px solid #cc4444;border-radius:10px;font-size:16px;cursor:pointer;color:#cc4444;white-space:nowrap;font-family:Georgia,serif">
+                                🗑 Удалить
+                            </button>
+                        </div>
+                        <span class="name-note fix-hint" style="color:#1A5C1A;display:none"></span>
+                    </span>`;
+            }
+            result.appendChild(row);
+        });
+
+        const banner = document.getElementById('warnBanner');
+        banner.style.display = hasUnknown ? 'block' : 'none';
+        banner.textContent = hasUnknown ? '⚠ Исправьте или удалите имена, выделенные красным.' : '';
+
+        goTo('screen-check-names');
+    }
+
+    function checkFixInput(input) {
+        const row = input.closest('.name-row');
+        const val = input.value.trim();
+        const hint = row.querySelector('.fix-hint');
+        if (!val) {
+            row.dataset.canonical = '';
+            input.style.borderColor = '#C8A04A';
+            hint.style.display = 'none';
+            return;
+        }
+        const canonical = findCanonical(val) || (val.charAt(0).toUpperCase() + val.slice(1).toLowerCase());
+        row.dataset.canonical = canonical;
+        input.style.borderColor = '#4A8B4A';
+        hint.textContent = '✓ В записке: ' + toGenitive(canonical);
+        hint.style.display = 'block';
+    }
+
+    function deleteName(btn) {
+        const row = btn.closest('.name-row');
+        row.dataset.canonical = '';
+        row.dataset.deleted = '1';
+        row.style.opacity = '0.35';
+        row.style.pointerEvents = 'none';
+    }
+
+    function confirmNames() {
+        const rows = document.querySelectorAll('#namesResult .name-row');
+        finalNames = [];
+        let hasUnsolved = false;
+
+        rows.forEach(row => {
+            if (row.dataset.deleted === '1') return; // удалено
+            const canonical = row.dataset.canonical;
+            if (canonical) {
+                finalNames.push(toGenitive(canonical));
+            } else {
+                hasUnsolved = true; // неизвестное и не удалено и не исправлено
+            }
+        });
+
+        if (hasUnsolved) {
+            alert('Исправьте или удалите имена, выделенные красным.');
+            return;
+        }
+        if (!finalNames.length) {
+            alert('Не осталось ни одного имени. Добавьте хотя бы одно.');
+            return;
+        }
+
+        const typeLabel = TYPE_LABELS[currentType] || currentType;
+        const namesStr = finalNames.join(', ');
+        document.getElementById('previewType').textContent = typeLabel;
+        document.getElementById('previewNames').textContent = namesStr;
+        document.getElementById('successType').textContent = typeLabel;
+        document.getElementById('successNames').textContent = namesStr;
+        goTo('screen-confirm');
+    }
+
+    function submitNote() {
+        submitToBot(currentType, finalNames);
+        window.open('https://messenger.online.sberbank.ru/sl/G11bjkOBTlCp7iypZ', '_blank');
+        goTo('screen-success');
+    }
+
+    function submitToBot(type, names) {
+        fetch('http://155.212.138.18:3001/zapiski', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, names })
+        }).catch(() => {});
+    }
+
+    function donateDemo() {
+        const amount = parseInt(document.getElementById('donateAmount').value) || 0;
+        if (amount < 1) { alert('Пожалуйста, введите сумму пожертвования'); return; }
+        goTo('screen-donate-success');
+    }
+
+    // Слайдер фото
+    let slideIdx = 0;
+    const slides = document.querySelectorAll('.photo-area img');
+    const dots   = document.querySelectorAll('.slide-dot');
+    function goSlide(n) {
+        slides[slideIdx].classList.remove('active');
+        dots[slideIdx].classList.remove('active');
+        slideIdx = (n + slides.length) % slides.length;
+        slides[slideIdx].classList.add('active');
+        dots[slideIdx].classList.add('active');
+    }
+    setInterval(() => goSlide(slideIdx + 1), 4000);
+
+    function toggleAdmin() {
+        const panel = document.getElementById('admin-panel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function clearNotes() {
+        if (!confirm('Вы уверены? Все записки будут удалены после службы.')) return;
+        try {
+            const resp = await fetch('http://155.212.138.18:3001/clear', { method: 'POST' });
+            if (resp.ok) {
+                alert('✅ Записки очищены.');
+                document.getElementById('admin-panel').style.display = 'none';
+            } else { alert('Ошибка очистки.'); }
+        } catch(e) { alert('Ошибка соединения.'); }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Примеры карточек</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: #888;
+    font-family: Georgia, 'Times New Roman', serif;
+    padding: 30px;
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+h2 {
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif;
+}
+
+/* ═══════════════════════════════════
+   КАРТОЧКА 1 — РАСПИСАНИЕ НА НЕДЕЛЮ
+═══════════════════════════════════ */
+.card-week {
+    width: 540px;
+    background: linear-gradient(160deg, #f9efd0 0%, #f0d9a0 50%, #f5e4b8 100%);
+    border: 4px solid #8B6914;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+    padding: 0;
+    position: relative;
+}
+.card-week .inner {
+    border: 2px solid #c9a84c;
+    margin: 7px;
+    padding: 18px 16px 16px;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 12px;
+}
+.card-cross {
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: center;
+}
+.card-church {
+    font-size: 15px;
+    font-weight: bold;
+    color: #2c1400;
+    line-height: 1.3;
+    margin-bottom: 4px;
+}
+.card-week-title {
+    font-size: 13px;
+    color: #8B1A1A;
+    font-style: italic;
+}
+.card-dates {
+    font-size: 12px;
+    color: #6b4c00;
+    margin-top: 2px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+    color: #8B6914;
+    font-size: 14px;
+}
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #c9a84c, transparent);
+}
+
+/* Строки дней */
+.day-row {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #dcc97a;
+    padding: 7px 0;
+}
+.day-row:last-child { border-bottom: none; }
+
+.day-col {
+    width: 100px;
+    min-width: 100px;
+    padding-right: 12px;
+    flex-shrink: 0;
+}
+.day-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #2c1400;
+    display: block;
+}
+.day-date {
+    font-size: 11px;
+    color: #888;
+    display: block;
+}
+.day-row.sunday .day-name,
+.day-row.sunday .saint-name { color: #8B1A1A; }
+.day-row.feast .day-name,
+.day-row.feast .saint-name,
+.day-row.feast .svc { color: #8B1A1A; font-weight: bold; }
+
+.day-info { flex: 1; }
+.saint-name {
+    font-size: 11.5px;
+    font-style: italic;
+    color: #4a2e00;
+    display: block;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+.feast-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: #8B1A1A;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.services { display: flex; flex-direction: column; gap: 2px; }
+.svc {
+    font-size: 11.5px;
+    color: #2c1400;
+    display: flex;
+    gap: 6px;
+}
+.svc-t { min-width: 36px; font-weight: bold; color: #5a3800; }
+.svc-t.red { color: #8B1A1A; }
+.svc-d.red { color: #8B1A1A; font-weight: bold; }
+
+.card-footer {
+    text-align: center;
+    margin-top: 10px;
+    color: #8B6914;
+    font-size: 16px;
+    letter-spacing: 5px;
+}
+
+
+/* Маленькое арочное фото в шапке карточек */
+.card-thumb {
+    width: 58px;
+    height: 68px;
+    border-radius: 50% 50% 6px 6px / 55% 55% 6px 6px;
+    object-fit: cover;
+    border: 2px solid #8B6914;
+    float: right;
+    margin: 0 0 6px 10px;
+    display: block;
+}
+
+/* ═══════════════════════════════════
+   КАРТОЧКА 2 — АНОНС ПРАЗДНИКА
+═══════════════════════════════════ */
+.card-feast {
+    width: 540px;
+    background: linear-gradient(160deg, #1a0a00 0%, #3d1a00 40%, #2c1000 100%);
+    border: 4px solid #c9a84c;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    position: relative;
+    overflow: hidden;
+}
+.card-feast-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('church1.jpg');
+    background-size: cover;
+    background-position: center top;
+    opacity: 0.22;
+    z-index: 0;
+}
+.card-feast .inner {
+    border: 2px solid #8B6914;
+    margin: 7px;
+    padding: 28px 20px 24px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.feast-cross {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+}
+.feast-label {
+    font-size: 12px;
+    color: #c9a84c;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+.feast-title-big {
+    font-size: 26px;
+    font-weight: bold;
+    color: #f5e6c0;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.feast-date-big {
+    font-size: 16px;
+    color: #c9a84c;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.feast-divider {
+    border: none;
+    border-top: 1px solid #8B6914;
+    margin: 16px 0;
+}
+
+.feast-services {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.feast-svc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+.feast-svc-time {
+    font-size: 20px;
+    font-weight: bold;
+    color: #c9a84c;
+    min-width: 60px;
+}
+.feast-svc-desc {
+    font-size: 14px;
+    color: #f0d9a0;
+    text-align: left;
+}
+
+.feast-church {
+    font-size: 13px;
+    color: #8B6914;
+    margin-top: 4px;
+}
+.feast-church strong {
+    color: #c9a84c;
+    display: block;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+/* ═══════════════════════════════════
+   КАРТОЧКА 3 — ОБЪЯВЛЕНИЕ
+═══════════════════════════════════ */
+.card-notice {
+    width: 540px;
+    background: linear-gradient(160deg, #f9efd0 0%, #f0d9a0 50%, #f5e4b8 100%);
+    border: 4px solid #8B6914;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+.card-notice .inner {
+    border: 2px solid #c9a84c;
+    margin: 7px;
+    padding: 22px 20px 20px;
+    text-align: center;
+}
+.notice-cross {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+}
+.notice-church {
+    font-size: 13px;
+    color: #6b4c00;
+    margin-bottom: 12px;
+    font-style: italic;
+}
+.notice-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #8B1A1A;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+.notice-body {
+    font-size: 14px;
+    color: #2c1400;
+    line-height: 1.7;
+    border-top: 1px solid #c9a84c;
+    border-bottom: 1px solid #c9a84c;
+    padding: 12px 0;
+    margin-bottom: 12px;
+}
+.notice-footer {
+    font-size: 12px;
+    color: #8B6914;
+    font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<!-- Общие SVG-ресурсы: канонический православный крест (Wikimedia Commons) -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="crossGold" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%"   stop-color="#edd458"/>
+      <stop offset="30%"  stop-color="#c9a020"/>
+      <stop offset="65%"  stop-color="#8B6508"/>
+      <stop offset="100%" stop-color="#d0aa38"/>
+    </linearGradient>
+    <linearGradient id="crossGoldLight" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%"   stop-color="#fce87a"/>
+      <stop offset="35%"  stop-color="#e8c84a"/>
+      <stop offset="70%"  stop-color="#b89030"/>
+      <stop offset="100%" stop-color="#f0d460"/>
+    </linearGradient>
+    <filter id="crossShadow"><feDropShadow dx="1.5" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.38)"/></filter>
+    <filter id="crossGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+</svg>
+
+<h2>Примеры карточек для Telegram-группы</h2>
+
+<!-- КАРТОЧКА 1: РАСПИСАНИЕ НА НЕДЕЛЮ -->
+<div class="card-week">
+<div class="inner">
+    <div class="card-header">
+        <img class="card-thumb" src="church1.jpg" alt="" onerror="this.remove()">
+        <div class="card-cross">
+            <svg viewBox="0 0 365 648" width="22" height="39" xmlns="http://www.w3.org/2000/svg">
+                <path fill="url(#crossGold)" filter="url(#crossShadow)" d="M153,34v60H93V147h60v59H34v54H153V430.5L97,404v54l56 27V598h59V513l56,27V485L212,458V260H331V206H212V147H272V93H212V34z"/>
+            </svg>
+        </div>
+        <div class="card-church">Храм свв. равноапп. Кирилла и Мефодия, г. Москва</div>
+        <div class="card-week-title">Расписание богослужений</div>
+        <div class="card-dates">19 мая — 25 мая 2025 года</div>
+    </div>
+
+    <div class="divider">☩</div>
+
+    <!-- Пн 19 -->
+    <div class="day-row">
+        <div class="day-col">
+            <span class="day-name">Понедельник</span>
+            <span class="day-date">19 мая</span>
+        </div>
+        <div class="day-info">
+            <span class="saint-name">Прав. Иова Многострадального</span>
+            <div class="services">
+                <div class="svc"><span class="svc-t">17:00</span><span class="svc-d">Исповедь. Вечернее богослужение</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вт 20 -->
+    <div class="day-row">
+        <div class="day-col">
+            <span class="day-name">Вторник</span>
+            <span class="day-date">20 мая</span>
+        </div>
+        <div class="day-info">
+            <span class="saint-name" style="color:#8B1A1A">Отдание праздника Пасхи. Крестный ход</span>
+            <div class="services">
+                <div class="svc"><span class="svc-t red">8:40</span><span class="svc-d red">Часы. Литургия. Крестный ход</span></div>
+                <div class="svc"><span class="svc-t red">17:00</span><span class="svc-d red">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ср 21 — ВОЗНЕСЕНИЕ -->
+    <div class="day-row feast">
+        <div class="day-col">
+            <span class="day-name">Среда</span>
+            <span class="day-date">21 мая</span>
+        </div>
+        <div class="day-info">
+            <span class="feast-name">✦ ВОЗНЕСЕНИЕ ГОСПОДНЕ ✦</span>
+            <div class="services">
+                <div class="svc"><span class="svc-t red">8:40</span><span class="svc-d red">Часы. Литургия</span></div>
+                <div class="svc"><span class="svc-t red">17:00</span><span class="svc-d red">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Чт 22 -->
+    <div class="day-row">
+        <div class="day-col">
+            <span class="day-name">Четверг</span>
+            <span class="day-date">22 мая</span>
+        </div>
+        <div class="day-info">
+            <span class="saint-name">Перенесение мощей свт. Николая из Мир Ликийских в Бар</span>
+            <div class="services">
+                <div class="svc"><span class="svc-t">8:40</span><span class="svc-d">Часы. Литургия</span></div>
+                <div class="svc"><span class="svc-t">17:00</span><span class="svc-d">Вечернее богослужение</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пт 23 -->
+    <div class="day-row">
+        <div class="day-col">
+            <span class="day-name">Пятница</span>
+            <span class="day-date">23 мая</span>
+        </div>
+        <div class="day-info">
+            <span class="saint-name">Ап. Симона Зилота</span>
+            <div class="services">
+                <div class="svc"><span class="svc-t">8:40</span><span class="svc-d">Часы. Литургия. Панихида</span></div>
+                <div class="svc"><span class="svc-t">15:30</span><span class="svc-d">Молебен с акафистом свв. Кириллу и Мефодию</span></div>
+                <div class="svc"><span class="svc-t">17:00</span><span class="svc-d">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вс 25 -->
+    <div class="day-row sunday">
+        <div class="day-col">
+            <span class="day-name">Воскресенье</span>
+            <span class="day-date">25 мая</span>
+        </div>
+        <div class="day-info">
+            <span class="feast-name">✦ ПРЕСТОЛЬНЫЙ ПРАЗДНИК ✦</span>
+            <span class="saint-name" style="color:#8B1A1A">Свв. равноапп. Мефодия и Кирилла</span>
+            <div class="services">
+                <div class="svc"><span class="svc-t red">8:00</span><span class="svc-d red">Водосвятный молебен</span></div>
+                <div class="svc"><span class="svc-t red">8:40</span><span class="svc-d red">Часы. Литургия. Крестный ход</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider">☩</div>
+    <div class="card-footer">☩ &nbsp; ☩ &nbsp; ☩</div>
+</div>
+</div>
+
+
+<!-- КАРТОЧКА 2: АНОНС ПРАЗДНИКА -->
+<div class="card-feast">
+<div class="card-feast-bg" id="feastBg"></div>
+<div class="inner">
+    <span class="feast-cross">
+        <svg viewBox="0 0 365 648" width="28" height="50" xmlns="http://www.w3.org/2000/svg">
+            <path fill="url(#crossGoldLight)" filter="url(#crossGlow)" d="M153,34v60H93V147h60v59H34v54H153V430.5L97,404v54l56 27V598h59V513l56,27V485L212,458V260H331V206H212V147H272V93H212V34z"/>
+        </svg>
+    </span>
+    <div class="feast-label">Завтра — великий праздник</div>
+    <div class="feast-title-big">Вознесение<br>Господне</div>
+    <div class="feast-date-big">21 мая 2025 года</div>
+
+    <hr class="feast-divider">
+
+    <div class="feast-services">
+        <div class="feast-svc">
+            <span class="feast-svc-time">8:40</span>
+            <span class="feast-svc-desc">Часы.<br>Божественная Литургия</span>
+        </div>
+        <div class="feast-svc">
+            <span class="feast-svc-time">17:00</span>
+            <span class="feast-svc-desc">Исповедь.<br>Всенощное бдение</span>
+        </div>
+    </div>
+
+    <hr class="feast-divider">
+    <div class="feast-church">
+        <strong>Храм свв. равноапп. Кирилла и Мефодия</strong>
+        Дегунино, г. Москва
+    </div>
+</div>
+</div>
+
+
+<!-- КАРТОЧКА 3: ОБЪЯВЛЕНИЕ -->
+<div class="card-notice">
+<div class="inner">
+    <img class="card-thumb" src="church1.jpg" alt="" onerror="this.remove()">
+    <div class="notice-cross">
+        <svg viewBox="0 0 365 648" width="20" height="36" xmlns="http://www.w3.org/2000/svg">
+            <path fill="url(#crossGold)" filter="url(#crossShadow)" d="M153,34v60H93V147h60v59H34v54H153V430.5L97,404v54l56 27V598h59V513l56,27V485L212,458V260H331V206H212V147H272V93H212V34z"/>
+        </svg>
+    </div>
+    <div class="notice-church">Храм свв. равноапп. Кирилла и Мефодия, г. Москва</div>
+    <div class="notice-title">Исповедь и соборование<br>28 мая, среда</div>
+    <div class="notice-body">
+        <strong>9:00</strong> — Исповедь. Таинство соборования
+    </div>
+    <div class="notice-footer">Приглашаются все желающие ✦</div>
+</div>
+</div>
+
+
+
+<!-- КАРТОЧКА 4: РАСПИСАНИЕ НА МЕСЯЦ -->
+<style>
+.card-month {
+    width: 600px;
+    background: linear-gradient(160deg, #f9efd0 0%, #f0d9a0 50%, #f5e4b8 100%);
+    border: 4px solid #8B6914;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+.card-month .inner {
+    border: 2px solid #c9a84c;
+    margin: 7px;
+    padding: 18px 16px 16px;
+}
+.card-month .card-header { text-align: center; margin-bottom: 10px; }
+.card-month .card-cross { font-size: 24px; color: #8B6914; margin-bottom: 5px; }
+.card-month .card-church { font-size: 14px; font-weight: bold; color: #2c1400; line-height: 1.3; margin-bottom: 3px; }
+.card-month .card-week-title { font-size: 13px; color: #8B1A1A; font-style: italic; }
+.card-month .card-dates { font-size: 11px; color: #6b4c00; margin-top: 1px; }
+
+.month-table { width: 100%; border-collapse: collapse; }
+.month-table td { border: 1px solid #dcc97a; padding: 5px 6px; vertical-align: top; font-size: 11.5px; }
+.month-table .m-day { width: 72px; min-width: 72px; }
+.m-day-name { font-weight: bold; color: #2c1400; display: block; font-size: 11px; }
+.m-day-date { color: #888; font-size: 10px; display: block; }
+.m-saint { font-style: italic; color: #4a2e00; line-height: 1.3; display: block; margin-bottom: 3px; font-size: 11px; }
+.m-feast-name { font-weight: bold; color: #8B1A1A; font-size: 11.5px; display: block; margin-bottom: 2px; }
+.m-svcs { display: flex; flex-direction: column; gap: 1px; }
+.m-svc { display: flex; gap: 5px; font-size: 11px; color: #2c1400; }
+.m-t { min-width: 34px; font-weight: bold; color: #5a3800; }
+.m-t.red { color: #8B1A1A; }
+.m-d.red { color: #8B1A1A; }
+
+tr.m-weekday { background: #fdf6e0; }
+tr.m-saturday { background: #f7edd0; }
+tr.m-sunday { background: #fff4c8; }
+tr.m-sunday .m-day-name, tr.m-sunday .m-saint { color: #8B1A1A; }
+tr.m-feast { background: #ffe4b0; }
+tr.m-feast .m-day-name, tr.m-feast .m-saint,
+tr.m-feast .m-t, tr.m-feast .m-d { color: #8B1A1A; font-weight: bold; }
+tr.m-special { background: #fff0d8; }
+tr.m-special .m-saint { color: #8B1A1A; }
+
+.month-contacts {
+    text-align: center;
+    padding: 8px 0 2px;
+    font-size: 10px;
+    color: #6b4c00;
+    line-height: 1.7;
+    border-top: 1px solid #c9a84c;
+    margin-top: 10px;
+}
+</style>
+
+<div class="card-month">
+<div class="inner">
+    <div class="card-header">
+        <img class="card-thumb" src="church1.jpg" alt="" onerror="this.remove()">
+        <div class="card-cross">
+            <svg viewBox="0 0 365 648" width="20" height="35" xmlns="http://www.w3.org/2000/svg">
+                <path fill="url(#crossGold)" filter="url(#crossShadow)" d="M153,34v60H93V147h60v59H34v54H153V430.5L97,404v54l56 27V598h59V513l56,27V485L212,458V260H331V206H212V147H272V93H212V34z"/>
+            </svg>
+        </div>
+        <div class="card-church">Храм свв. равноапп. Кирилла и Мефодия в Дегунине, г. Москва</div>
+        <div class="card-week-title">Расписание богослужений</div>
+        <div class="card-dates">Май 2025 года</div>
+    </div>
+
+    <div class="divider">☩</div>
+
+    <table class="month-table">
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Четверг</span><span class="m-day-date">1 мая</span></td>
+        <td>
+            <span class="m-saint">Прп. Иоанна Солунского</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Молебен</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-saturday">
+        <td class="m-day"><span class="m-day-name">Пятница</span><span class="m-day-date">2 мая</span></td>
+        <td>
+            <span class="m-saint">Блж. Матроны Московской</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Панихида</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-sunday">
+        <td class="m-day"><span class="m-day-name">Воскресенье</span><span class="m-day-date">3 мая</span></td>
+        <td>
+            <span class="m-feast-name">Неделя 4-я по Пасхе, о расслабленном</span>
+            <span class="m-saint">Прп. Феодора Трихины</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t red">8:00</span><span class="m-d red">Водосвятный молебен</span></div>
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Молебен с акафистом свв. Кириллу и Мефодию</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Вторник</span><span class="m-day-date">5 мая</span></td>
+        <td>
+            <span class="m-saint">Прп. Феодора Сикеота</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Вечернее богослужение (Полиелей)</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-special">
+        <td class="m-day"><span class="m-day-name">Среда</span><span class="m-day-date">6 мая</span></td>
+        <td>
+            <span class="m-saint">Вмч. Георгия Победоносца</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Молебен</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Четверг</span><span class="m-day-date">7 мая</span></td>
+        <td>
+            <span class="m-saint">Мч. Саввы Стратилата</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Заупокойная лития</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Пятница</span><span class="m-day-date">8 мая</span></td>
+        <td>
+            <span class="m-saint">Апостола и евангелиста Марка</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Молебен</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-saturday">
+        <td class="m-day"><span class="m-day-name">Суббота</span><span class="m-day-date">9 мая</span></td>
+        <td>
+            <span class="m-saint">Свт. Стефана, еп. Великопермского</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Панихида</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-sunday">
+        <td class="m-day"><span class="m-day-name">Воскресенье</span><span class="m-day-date">10 мая</span></td>
+        <td>
+            <span class="m-feast-name">Неделя 5-я по Пасхе, о самаряныне</span>
+            <span class="m-saint">Ап. от 70-ти сщмч. Симеона Иерусалимского</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t red">8:00</span><span class="m-d red">Водосвятный молебен</span></div>
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Молебен с акафистом свв. Кириллу и Мефодию</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Вторник</span><span class="m-day-date">12 мая</span></td>
+        <td>
+            <span class="m-saint">Девяти мучеников Кизических</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Среда</span><span class="m-day-date">13 мая</span></td>
+        <td>
+            <span class="m-saint">Отдание Преполовения. Ап. Иакова Зеведеева</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Молебен</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Вечернее богослужение (Полиелей)</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Четверг</span><span class="m-day-date">14 мая</span></td>
+        <td>
+            <span class="m-saint">Прор. Иеремии. Икона Б.М. «Нечаянная радость»</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Заупокойная лития</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Пятница</span><span class="m-day-date">15 мая</span></td>
+        <td>
+            <span class="m-saint">Свт. Афанасия Великого. Перенесение мощей кнн. Бориса и Глеба</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Молебен</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Вечернее богослужение (Полиелей)</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-saturday">
+        <td class="m-day"><span class="m-day-name">Суббота</span><span class="m-day-date">16 мая</span></td>
+        <td>
+            <span class="m-saint">Прп. Феодосия, игумена Киево-Печерского</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Панихида</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Всенощное бдение (Полиелей)</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-sunday">
+        <td class="m-day"><span class="m-day-name">Воскресенье</span><span class="m-day-date">17 мая</span></td>
+        <td>
+            <span class="m-feast-name">Неделя 6-я по Пасхе, о слепом</span>
+            <span class="m-saint">Мц. Пелагии Тарсийской</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t red">8:00</span><span class="m-d red">Водосвятный молебен</span></div>
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Молебен с акафистом свв. Кириллу и Мефодию</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Вторник</span><span class="m-day-date">19 мая</span></td>
+        <td>
+            <span class="m-saint">Прав. Иова Многострадального</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Вечернее богослужение (Пасхальным чином)</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-special">
+        <td class="m-day"><span class="m-day-name">Среда</span><span class="m-day-date">20 мая</span></td>
+        <td>
+            <span class="m-saint" style="color:#8B1A1A;font-weight:bold">Отдание праздника Пасхи. Крестный ход</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t red">8:40</span><span class="m-d red">Часы. Литургия. Крестный ход</span></div>
+                <div class="m-svc"><span class="m-t red">17:00</span><span class="m-d red">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-feast">
+        <td class="m-day"><span class="m-day-name">Четверг</span><span class="m-day-date">21 мая</span></td>
+        <td>
+            <span class="m-feast-name">✦ ВОЗНЕСЕНИЕ ГОСПОДНЕ ✦</span>
+            <span class="m-saint">Апостола и евангелиста Иоанна Богослова</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t red">8:40</span><span class="m-d red">Часы. Литургия</span></div>
+                <div class="m-svc"><span class="m-t red">17:00</span><span class="m-d red">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-special">
+        <td class="m-day"><span class="m-day-name">Пятница</span><span class="m-day-date">22 мая</span></td>
+        <td>
+            <span class="m-saint" style="color:#8B1A1A">Перенесение мощей свт. Николая из Мир Ликийских в Бар</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-saturday">
+        <td class="m-day"><span class="m-day-name">Суббота</span><span class="m-day-date">23 мая</span></td>
+        <td>
+            <span class="m-saint">Попразднство Вознесения. Ап. Симона Зилота</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Панихида</span></div>
+                <div class="m-svc"><span class="m-t">15:30</span><span class="m-d">Молебен с акафистом свв. Кириллу и Мефодию</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-feast">
+        <td class="m-day"><span class="m-day-name">Воскресенье</span><span class="m-day-date">24 мая</span></td>
+        <td>
+            <span class="m-feast-name">✦ ПРЕСТОЛЬНЫЙ ПРАЗДНИК ✦</span>
+            <span class="m-saint">Свв. равноапп. Мефодия и Кирилла, учителей Словенских</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t red">8:00</span><span class="m-d red">Водосвятный молебен</span></div>
+                <div class="m-svc"><span class="m-t red">8:40</span><span class="m-d red">Часы. Литургия. Крестный ход</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Вторник</span><span class="m-day-date">26 мая</span></td>
+        <td>
+            <span class="m-saint">Мц. Гликерии девы</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Среда</span><span class="m-day-date">27 мая</span></td>
+        <td>
+            <span class="m-saint">Мч. Исидора Хиосского</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Молебен</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-weekday">
+        <td class="m-day"><span class="m-day-name">Четверг</span><span class="m-day-date">29 мая</span></td>
+        <td>
+            <span class="m-saint">Отдание Вознесения. Прп. Феодора Освященного</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Вечернее богослужение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-saturday">
+        <td class="m-day"><span class="m-day-name">Суббота</span><span class="m-day-date">30 мая</span></td>
+        <td>
+            <span class="m-feast-name">Троицкая родительская суббота</span>
+            <span class="m-saint">Поминовение усопших. Ап. от 70-ти Андроника</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t">8:40</span><span class="m-d">Часы. Литургия. Панихида</span></div>
+                <div class="m-svc"><span class="m-t">17:00</span><span class="m-d">Исповедь. Всенощное бдение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr class="m-feast">
+        <td class="m-day"><span class="m-day-name">Воскресенье</span><span class="m-day-date">31 мая</span></td>
+        <td>
+            <span class="m-feast-name">✦ ДЕНЬ СВЯТОЙ ТРОИЦЫ ✦</span>
+            <span class="m-saint">Пятидесятница</span>
+            <div class="m-svcs">
+                <div class="m-svc"><span class="m-t red">8:40</span><span class="m-d red">Часы. Литургия. Вечерня</span></div>
+                <div class="m-svc"><span class="m-t red">17:00</span><span class="m-d red">Всенощное бдение</span></div>
+            </div>
+        </td>
+    </tr>
+
+    </table>
+
+    <div class="month-contacts">
+        📞 +7 (924) 174-45-92 &nbsp;|&nbsp; ✉ hram_bazovskaya@mail.ru
+    </div>
+
+    <div class="divider" style="margin-top:8px">☩</div>
+    <div class="card-footer" style="text-align:center;color:#8B6914;font-size:14px;letter-spacing:4px;padding-top:6px">☩ &nbsp; ☩ &nbsp; ☩</div>
+</div>
+</div>
+
+</body>
+</html>
