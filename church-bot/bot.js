@@ -374,14 +374,20 @@ function inlineKb(buttons) {
 // ─── КЭШ УВЕДОМЛЕНИЙ (для кнопки Помянул) ──────────────────────────────────
 const notesCache = new Map();
 
-// Имена в N колонок: Александра  •  Николай
+// Имена в N колонок — моноширина через <pre>, чтобы колонки ровные
 function formatNamesColumns(names, cols = 2) {
     if (!names.length) return '—';
+    const maxLen = Math.max(...names.map(n => n.length));
+    const colW = maxLen + 3;
     const lines = [];
     for (let i = 0; i < names.length; i += cols) {
-        lines.push(names.slice(i, i + cols).join('  •  '));
+        const row = names.slice(i, i + cols);
+        const padded = row.map((n, idx) =>
+            idx < row.length - 1 ? n.padEnd(colW, ' ') : n
+        );
+        lines.push(padded.join(''));
     }
-    return lines.join('\n');
+    return '<pre>' + lines.join('\n') + '</pre>';
 }
 
 // Отправить уведомление администраторам с кнопкой «Помянул»
@@ -389,7 +395,8 @@ async function notifyAdminsNote(label, names, fromName) {
     const cfg = loadConfig();
     const uid = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     const colsText = formatNamesColumns(names, 2);
-    notesCache.set(uid, { label, colsText, fromName: fromName || 'сайт' });
+    const namesFlat = names.join(', ');
+    notesCache.set(uid, { label, colsText, namesFlat, fromName: fromName || 'сайт' });
     setTimeout(() => notesCache.delete(uid), 24 * 60 * 60 * 1000);
 
     const text = `📋 <b>${label}</b>
@@ -705,7 +712,8 @@ function showServiceMode(chatId) {
         if (!names.length) continue;
         const uid = Date.now().toString(36) + '_' + key;
         const colsText = formatNamesColumns(names, 2);
-        notesCache.set(uid, { label, colsText, fromName: 'все записки' });
+        const namesFlat = names.join(', ');
+        notesCache.set(uid, { label, colsText, namesFlat, fromName: 'все записки' });
         setTimeout(() => notesCache.delete(uid), 8 * 60 * 60 * 1000);
         bot.sendMessage(chatId,
             `📋 <b>${label}</b> (${names.length})
@@ -867,7 +875,7 @@ bot.on('callback_query', async query => {
         if (cached) {
             editText = `✅ <b>ПОМЯНУТО — ${cached.label}</b>
 
-<s>${cached.colsText}</s>
+<s>${cached.namesFlat || cached.colsText}</s>
 
 <i>От: ${cached.fromName}</i>`;
         } else {
