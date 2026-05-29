@@ -85,14 +85,16 @@ function isAdmin(id)   { return loadConfig().adminIds.includes(String(id)); }
 
 // ─── ДАННЫЕ (плоские списки — обратная совместимость) ────────────────────────
 function loadData() {
-    if (!fs.existsSync(DATA_FILE)) return { zdravie: [], upokoj: [], bolash: [], putesh: [] };
+    if (!fs.existsSync(DATA_FILE)) return { zdravie: [], upokoj: [], bolash: [], putesh: [], panikhida: [], molebn: [] };
     try {
         const d = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-        d.bolash = d.bolash || [];
-        d.putesh = d.putesh || [];
+        d.bolash    = d.bolash    || [];
+        d.putesh    = d.putesh    || [];
+        d.panikhida = d.panikhida || [];
+        d.molebn    = d.molebn    || [];
         return d;
     }
-    catch { return { zdravie: [], upokoj: [], bolash: [], putesh: [] }; }
+    catch { return { zdravie: [], upokoj: [], bolash: [], putesh: [], panikhida: [], molebn: [] }; }
 }
 function saveData(d) { fs.writeFileSync(DATA_FILE, JSON.stringify(d, null, 2)); }
 let db = loadData();
@@ -115,10 +117,12 @@ function addNote(chatId, firstName, type, names) {
         names,
     });
     saveNotes(notes);
-    if (type === 'zdravie')      db.zdravie.push(...names);
-    else if (type === 'upokoj') db.upokoj.push(...names);
-    else if (type === 'bolash') db.bolash.push(...names);
-    else if (type === 'putesh') db.putesh.push(...names);
+    if (type === 'zdravie')         db.zdravie.push(...names);
+    else if (type === 'upokoj')    db.upokoj.push(...names);
+    else if (type === 'bolash')    db.bolash.push(...names);
+    else if (type === 'putesh')    db.putesh.push(...names);
+    else if (type === 'panikhida') db.panikhida.push(...names);
+    else if (type === 'molebn')    db.molebn.push(...names);
     saveData(db);
 }
 
@@ -340,6 +344,7 @@ const KB_USER = {
         keyboard: [
             ['🙏 О здравии',          '✝️ Об упокоении'],
             ['🤒 О болящих',          '✈️ О путешествующих'],
+            ['🕯 Панихида',           '🙏 Молебен'],
             ['📅 Расписание',          'ℹ️ О храме'],
             ['💳 Пожертвование'],
         ],
@@ -352,10 +357,11 @@ const KB_ADMIN = {
         keyboard: [
             ['🙏 О здравии',          '✝️ Об упокоении'],
             ['🤒 О болящих',          '✈️ О путешествующих'],
-            ['📋 Записки',            '📤 Скачать список'],
-            ['🗑 Очистить после службы', '📢 Объявление'],
+            ['🕯 Панихида',           '🙏 Молебен'],
+            ['⛪ Служба',             '📋 Записки'],
+            ['📤 Скачать список',     '🗑 Очистить после службы'],
+            ['📢 Объявление',         '🔗 Ссылки прихода'],
             ['📋 Новое расписание',   '🗓 HTML расписания'],
-            ['🔗 Ссылки прихода'],
         ],
         resize_keyboard: true,
     },
@@ -363,6 +369,40 @@ const KB_ADMIN = {
 
 function inlineKb(buttons) {
     return { reply_markup: { inline_keyboard: buttons } };
+}
+
+// ─── КЭШ УВЕДОМЛЕНИЙ (для кнопки Помянул) ──────────────────────────────────
+const notesCache = new Map();
+
+// Имена в N колонок: Александра  •  Николай
+function formatNamesColumns(names, cols = 2) {
+    if (!names.length) return '—';
+    const lines = [];
+    for (let i = 0; i < names.length; i += cols) {
+        lines.push(names.slice(i, i + cols).join('  •  '));
+    }
+    return lines.join('\n');
+}
+
+// Отправить уведомление администраторам с кнопкой «Помянул»
+async function notifyAdminsNote(label, names, fromName) {
+    const cfg = loadConfig();
+    const uid = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    const colsText = formatNamesColumns(names, 2);
+    notesCache.set(uid, { label, colsText, fromName: fromName || 'сайт' });
+    setTimeout(() => notesCache.delete(uid), 24 * 60 * 60 * 1000);
+
+    const text = `📋 <b>${label}</b>
+
+${colsText}
+
+<i>От: ${fromName || 'сайт'}</i>`;
+    for (const adminId of cfg.adminIds) {
+        await bot.sendMessage(adminId, text, {
+            parse_mode: 'HTML',
+            reply_markup: { inline_keyboard: [[{ text: '☐ Помянул', callback_data: `pom_${uid}` }]] }
+        }).catch(() => {});
+    }
 }
 
 // ─── БОТ ────────────────────────────────────────────────────────────────────
@@ -613,26 +653,70 @@ bot.onText(/\/help/, msg => {
 function showNotes(chatId) {
     const d = loadData();
     const counts = {
-        zdravie: d.zdravie.length,
-        upokoj:  d.upokoj.length,
-        bolash:  d.bolash.length,
-        putesh:  d.putesh.length,
+        zdravie:   d.zdravie.length,
+        upokoj:    d.upokoj.length,
+        bolash:    d.bolash.length,
+        putesh:    d.putesh.length,
+        panikhida: (d.panikhida || []).length,
+        molebn:    (d.molebn    || []).length,
     };
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
     if (!total) { bot.sendMessage(chatId, '📋 Записок пока нет.', KB_ADMIN); return; }
 
+    const buttons = [
+        [{ text: `🙏 О здравии (${counts.zdravie})`,        callback_data: 'notes_zdravie' }],
+        [{ text: `✝️ Об упокоении (${counts.upokoj})`,      callback_data: 'notes_upokoj'  }],
+        [{ text: `🤒 О болящих (${counts.bolash})`,         callback_data: 'notes_bolash'  }],
+        [{ text: `✈️ О путешествующих (${counts.putesh})`,  callback_data: 'notes_putesh'  }],
+    ];
+    if (counts.panikhida) buttons.push([{ text: `🕯 Панихида (${counts.panikhida})`, callback_data: 'notes_panikhida' }]);
+    if (counts.molebn)    buttons.push([{ text: `🙏 Молебен (${counts.molebn})`,     callback_data: 'notes_molebn'    }]);
+
     bot.sendMessage(chatId,
-        `📋 *Записки* — всего имён: ${total}\n\nВыберите вид:`,
-        {
-            parse_mode: 'Markdown',
-            reply_markup: { inline_keyboard: [
-                [{ text: `🙏 О здравии (${counts.zdravie})`,        callback_data: 'notes_zdravie' }],
-                [{ text: `✝️ Об упокоении (${counts.upokoj})`,      callback_data: 'notes_upokoj'  }],
-                [{ text: `🤒 О болящих (${counts.bolash})`,         callback_data: 'notes_bolash'  }],
-                [{ text: `✈️ О путешествующих (${counts.putesh})`,  callback_data: 'notes_putesh'  }],
-            ]},
-        }
+        `📋 *Записки* — всего имён: ${total}
+
+Выберите вид:`,
+        { parse_mode: 'Markdown', reply_markup: { inline_keyboard: buttons } }
     );
+}
+
+// ─── Режим службы (проскомидия) ───────────────────────────────────────────────
+function showServiceMode(chatId) {
+    const d = loadData();
+    const types = [
+        ['zdravie',   '🙏 О здравии'],
+        ['upokoj',    '✝️ Об упокоении'],
+        ['bolash',    '🤒 О болящих'],
+        ['putesh',    '✈️ О путешествующих'],
+        ['panikhida', '🕯 Панихида'],
+        ['molebn',    '🙏 Молебен'],
+    ];
+    const total = types.reduce((s, [k]) => s + (d[k] || []).length, 0);
+    if (!total) { bot.sendMessage(chatId, '📋 Записок пока нет.', KB_ADMIN); return; }
+
+    bot.sendMessage(chatId,
+        `⛪ <b>Режим службы</b> — ${total} имён
+
+Тапните «Помянул» после каждой записки`,
+        { parse_mode: 'HTML' }
+    );
+    for (const [key, label] of types) {
+        const names = d[key] || [];
+        if (!names.length) continue;
+        const uid = Date.now().toString(36) + '_' + key;
+        const colsText = formatNamesColumns(names, 2);
+        notesCache.set(uid, { label, colsText, fromName: 'все записки' });
+        setTimeout(() => notesCache.delete(uid), 8 * 60 * 60 * 1000);
+        bot.sendMessage(chatId,
+            `📋 <b>${label}</b> (${names.length})
+
+${colsText}`,
+            {
+                parse_mode: 'HTML',
+                reply_markup: { inline_keyboard: [[{ text: '☐ Помянул', callback_data: `pom_${uid}` }]] }
+            }
+        ).catch(() => {});
+    }
 }
 
 // ─── Расписание (user) ───────────────────────────────────────────────────────
@@ -683,8 +767,8 @@ function showAbout(chatId) {
 }
 
 // ─── Текст благодарности после записки ──────────────────────────────────────
-const TYPE_LABEL_SHORT = { zdravie:'о здравии', upokoj:'об упокоении', bolash:'о болящих', putesh:'о путешествующих' };
-const TYPE_LABEL_FULL  = { zdravie:'🙏 О здравии', upokoj:'✝️ Об упокоении', bolash:'🤒 О болящих', putesh:'✈️ О путешествующих' };
+const TYPE_LABEL_SHORT = { zdravie:'о здравии', upokoj:'об упокоении', bolash:'о болящих', putesh:'о путешествующих', panikhida:'панихида', molebn:'молебен' };
+const TYPE_LABEL_FULL  = { zdravie:'🙏 О здравии', upokoj:'✝️ Об упокоении', bolash:'🤒 О болящих', putesh:'✈️ О путешествующих', panikhida:'🕯 Панихида', molebn:'🙏 Молебен' };
 
 function sendThanks(chatId, type, names) {
     const label = TYPE_LABEL_SHORT[type] || type;
@@ -717,10 +801,7 @@ bot.on('callback_query', async query => {
         clearState(id);
         sendThanks(id, type, genitives);
         const label = TYPE_LABEL_FULL[type] || type;
-        await notifyAdmins(
-            `📝 *Новая записка!*\n\n${label}:\n${genitives.map(n=>`• ${n}`).join('\n')}\n\nОт: ${query.from.first_name || '—'} (id: ${id})`,
-            { parse_mode: 'Markdown' }
-        );
+        await notifyAdminsNote(label, genitives, query.from.first_name || '—');
         return;
     }
 
@@ -767,8 +848,9 @@ bot.on('callback_query', async query => {
 
     // Очистить записки
     if (data === 'clear_yes') {
-        db.zdravie = []; db.upokoj = []; db.bolash = []; db.putesh = []; saveData(db);
-        saveNotes([]);
+        db.zdravie = []; db.upokoj = []; db.bolash = []; db.putesh = [];
+        db.panikhida = []; db.molebn = [];
+        saveData(db); saveNotes([]);
         bot.sendMessage(id, '✅ Все записки очищены после службы.', KB_ADMIN);
         return;
     }
@@ -776,6 +858,32 @@ bot.on('callback_query', async query => {
         bot.sendMessage(id, 'Отменено.', KB_ADMIN);
         return;
     }
+
+    // ─── Кнопка «Помянул» ────────────────────────────────────────────────
+    if (data.startsWith('pom_') && data !== 'pom_done') {
+        const uid = data.slice(4);
+        const cached = notesCache.get(uid);
+        let editText;
+        if (cached) {
+            editText = `✅ <b>ПОМЯНУТО — ${cached.label}</b>
+
+<s>${cached.colsText}</s>
+
+<i>От: ${cached.fromName}</i>`;
+        } else {
+            editText = `✅ <b>ПОМЯНУТО</b>`;
+        }
+        try {
+            await bot.editMessageText(editText, {
+                chat_id: query.message.chat.id,
+                message_id: query.message.message_id,
+                parse_mode: 'HTML',
+                reply_markup: { inline_keyboard: [[{ text: '✅ Помянуто', callback_data: 'pom_done' }]] }
+            });
+        } catch(e) { console.error('[pom] edit error:', e.message); }
+        return;
+    }
+    if (data === 'pom_done') return; // уже помянуто — игнорируем
 });
 
 function askAmbiguous(chatId, pending, idx, type) {
@@ -927,10 +1035,12 @@ bot.on('message', msg => {
     }
 
     // Кнопки пользователя
-    if (text === '🙏 О здравии')          { startNote(id, 'zdravie'); return; }
-    if (text === '✝️ Об упокоении')        { startNote(id, 'upokoj');  return; }
-    if (text === '🤒 О болящих')           { startNote(id, 'bolash');  return; }
-    if (text === '✈️ О путешествующих')    { startNote(id, 'putesh');  return; }
+    if (text === '🙏 О здравии')          { startNote(id, 'zdravie');   return; }
+    if (text === '✝️ Об упокоении')        { startNote(id, 'upokoj');    return; }
+    if (text === '🤒 О болящих')           { startNote(id, 'bolash');    return; }
+    if (text === '✈️ О путешествующих')    { startNote(id, 'putesh');    return; }
+    if (text === '🕯 Панихида')            { startNote(id, 'panikhida'); return; }
+    if (text === '🙏 Молебен')             { startNote(id, 'molebn');    return; }
     if (text === '📅 Расписание')          { showSchedule(id); return; }
     if (text === 'ℹ️ О храме')            { showAbout(id); return; }
     if (text === '💳 Пожертвование') {
@@ -948,6 +1058,7 @@ bot.on('message', msg => {
 
     // Кнопки admin
     if (isAdmin(id)) {
+        if (text === '⛪ Служба')   { showServiceMode(id); return; }
         if (text === '📋 Записки') { showNotes(id); return; }
         if (text === '📤 Скачать список') { exportNotes(id); return; }
         if (text === '🗑 Очистить после службы') {
@@ -1438,13 +1549,14 @@ app.post('/zapiski', (req, res) => {
     if (!type || !names?.length) return res.status(400).json({ ok: false });
     addNote(null, 'сайт', type, names);
     const label = TYPE_LABEL_FULL[type] || type;
-    notifyAdmins(`📜 *Новая записка с сайта*\n\n${label}:\n${names.map(n=>`• ${n}`).join('\n')}`, { parse_mode: 'Markdown' });
+    notifyAdminsNote(label, names, 'сайт');
     res.json({ ok: true });
 });
 
 app.post('/clear', (req, res) => {
-    db.zdravie = []; db.upokoj = []; db.bolash = []; db.putesh = []; saveData(db);
-    saveNotes([]);
+    db.zdravie = []; db.upokoj = []; db.bolash = []; db.putesh = [];
+    db.panikhida = []; db.molebn = [];
+    saveData(db); saveNotes([]);
     notifyAdmins('🗑 Записки очищены через сайт после службы.');
     res.json({ ok: true });
 });
@@ -1456,7 +1568,8 @@ app.listen(3001, () => console.log('HTTP на порту 3001'));
 // ─── Экспорт записок (admin) ─────────────────────────────────────────────────
 function exportNotes(chatId) {
     const d = loadData();
-    const total = d.zdravie.length + d.upokoj.length + d.bolash.length + d.putesh.length;
+    const total = d.zdravie.length + d.upokoj.length + d.bolash.length + d.putesh.length +
+        (d.panikhida||[]).length + (d.molebn||[]).length;
 
     if (!total) {
         bot.sendMessage(chatId, '📋 Записок пока нет — нечего скачивать.', KB_ADMIN);
@@ -1484,6 +1597,16 @@ function exportNotes(chatId) {
     if (d.putesh.length) {
         txt += `✈️ О ПУТЕШЕСТВУЮЩИХ (${d.putesh.length}):\n`;
         d.putesh.forEach((n, i) => txt += `${i + 1}. ${n}\n`);
+        txt += '\n';
+    }
+    if ((d.panikhida||[]).length) {
+        txt += `🕯 ПАНИХИДА (${d.panikhida.length}):\n`;
+        d.panikhida.forEach((n, i) => txt += `${i + 1}. ${n}\n`);
+        txt += '\n';
+    }
+    if ((d.molebn||[]).length) {
+        txt += `🙏 МОЛЕБЕН (${d.molebn.length}):\n`;
+        d.molebn.forEach((n, i) => txt += `${i + 1}. ${n}\n`);
         txt += '\n';
     }
     txt += `${'─'.repeat(30)}\nВсего: ${total} имён`;
