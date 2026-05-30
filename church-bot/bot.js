@@ -4,60 +4,26 @@ const express       = require('express');
 const fs            = require('fs');
 const path          = require('path');
 const https         = require('https');
+const { execSync }  = require('child_process');
 
 const TOKEN          = process.env.BOT_TOKEN;
 const DATA_FILE      = path.join(__dirname, 'data.json');
 const CONFIG_FILE    = path.join(__dirname, 'config.json');
 const SCHEDULE_FILE  = path.join(__dirname, 'schedule.json');
 const NOTES_FILE     = path.join(__dirname, 'notes.json');
-const HTML_OUT       = '/var/www/html/schedule.html';
+const HTML_OUT       = '/home/agent/khram-site/schedule.html';
+const SITE_DIR       = '/home/agent/khram-site';
+const PROFILES_FILE  = path.join(__dirname, 'profiles.json');
 
-// ─── NETLIFY ─────────────────────────────────────────────────────────────────
-const NETLIFY_TOKEN   = 'nfp_Tw2G378MQykaL7KWiQXWMNzwgrVyndTXea26';
-const NETLIFY_SITE_ID = '6e58378e-e578-4a63-8ebf-1657430fdae7';
-const NETLIFY_URL     = 'https://khram-aikhal.netlify.app';
+// ─── САЙТ (GitHub Pages — постоянный бесплатный хостинг) ────────────────────
+const NETLIFY_URL = 'https://khram-aikhal.github.io';
 
-function deployToNetlify() {
+function deployToGitHub(message = 'update site') {
     try {
-        // Собираем файлы сайта
-        const siteDir = '/var/www/html';
-        const files = ['index.html', 'zapiski.html', 'schedule.html', 'proposal.html', 'qr.html', 'h1.jpg', 'h3.jpg'];
-
-        // Формируем multipart/zip через встроенный zlib — используем файловый подход
-        const { execSync } = require('child_process');
-        const zipPath = '/tmp/church-deploy.zip';
-        const fileList = files.map(f => `${siteDir}/${f}`).filter(f => fs.existsSync(f));
-        execSync(`zip -j ${zipPath} ${fileList.join(' ')}`);
-
-        const zipData = fs.readFileSync(zipPath);
-
-        const options = {
-            hostname: 'api.netlify.com',
-            path: `/api/v1/sites/${NETLIFY_SITE_ID}/deploys`,
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${NETLIFY_TOKEN}`,
-                'Content-Type': 'application/zip',
-                'Content-Length': zipData.length,
-            },
-        };
-
-        const req = https.request(options, res => {
-            let body = '';
-            res.on('data', d => body += d);
-            res.on('end', () => {
-                if (res.statusCode === 200 || res.statusCode === 201) {
-                    console.log('[netlify] deploy OK');
-                } else {
-                    console.error('[netlify] deploy error:', res.statusCode, body.slice(0, 200));
-                }
-            });
-        });
-        req.on('error', e => console.error('[netlify] request error:', e.message));
-        req.write(zipData);
-        req.end();
+        execSync(`cd ${SITE_DIR} && git add -A && git commit -m "${message}" && git push`, { stdio: 'pipe' });
+        console.log('[github] deployed:', message);
     } catch(e) {
-        console.error('[netlify] deploy failed:', e.message);
+        console.error('[github] deploy error:', e.stderr?.toString() || e.message);
     }
 }
 
@@ -124,6 +90,55 @@ function addNote(chatId, firstName, type, names) {
     else if (type === 'panikhida') db.panikhida.push(...names);
     else if (type === 'molebn')    db.molebn.push(...names);
     saveData(db);
+}
+
+// ─── ПРОФИЛИ ПРИХОЖАН (сохранённые списки имён) ─────────────────────────────
+function loadProfiles() {
+    try { return fs.existsSync(PROFILES_FILE) ? JSON.parse(fs.readFileSync(PROFILES_FILE, 'utf8')) : {}; }
+    catch { return {}; }
+}
+function saveProfiles(p) { fs.writeFileSync(PROFILES_FILE, JSON.stringify(p, null, 2)); }
+
+function getProfile(userId) {
+    return loadProfiles()[String(userId)] || { zdravie: [], upokoj: [] };
+}
+
+function saveProfileList(userId, type, names) {
+    const profiles = loadProfiles();
+    if (!profiles[String(userId)]) profiles[String(userId)] = { zdravie: [], upokoj: [] };
+    profiles[String(userId)][type] = names;
+    saveProfiles(profiles);
+}
+
+function showMyList(chatId) {
+    const p = getProfile(chatId);
+    const hasZdravie = p.zdravie && p.zdravie.length > 0;
+    const hasUpokoj  = p.upokoj  && p.upokoj.length  > 0;
+
+    if (!hasZdravie && !hasUpokoj) {
+        bot.sendMessage(chatId,
+            `📋 *Мой список*\n\nУ вас пока нет сохранённых имён.\n\nПодайте записку обычным способом — в конце я предложу сохранить список.\n\n_Потом одной кнопкой будете подавать за всех близких сразу!_ 🙏`,
+            { parse_mode: 'Markdown', ...KB_USER });
+        return;
+    }
+
+    let text = `📋 *Мой список*\n\nСохранённые имена:\n\n`;
+    const buttons = [];
+
+    if (hasZdravie) {
+        text += `🙏 *О здравии:*\n${p.zdravie.map(n => `• ${n}`).join('\n')}\n\n`;
+        buttons.push([{ text: `🙏 Подать о здравии (${p.zdravie.length} имён)`, callback_data: 'mylist_zdravie' }]);
+    }
+    if (hasUpokoj) {
+        text += `✝️ *Об упокоении:*\n${p.upokoj.map(n => `• ${n}`).join('\n')}\n\n`;
+        buttons.push([{ text: `✝️ Подать об упокоении (${p.upokoj.length} имён)`, callback_data: 'mylist_upokoj' }]);
+    }
+    buttons.push([{ text: '✏️ Изменить список', callback_data: 'mylist_edit' }]);
+
+    bot.sendMessage(chatId, text, {
+        parse_mode: 'Markdown',
+        reply_markup: { inline_keyboard: buttons }
+    });
 }
 
 // ─── РАСПИСАНИЕ ─────────────────────────────────────────────────────────────
@@ -345,8 +360,10 @@ const KB_USER = {
             ['🙏 О здравии',          '✝️ Об упокоении'],
             ['🤒 О болящих',          '✈️ О путешествующих'],
             ['🕯 Панихида',           '🙏 Молебен'],
+            ['📋 Мой список',          '🗓 Календарь'],
             ['📅 Расписание',          'ℹ️ О храме'],
             ['💳 Пожертвование'],
+            ['🔗 Ссылки прихода'],
         ],
         resize_keyboard: true,
     },
@@ -362,6 +379,7 @@ const KB_ADMIN = {
             ['📤 Скачать список',     '🗑 Очистить после службы'],
             ['📢 Объявление',         '🔗 Ссылки прихода'],
             ['📋 Новое расписание',   '🗓 HTML расписания'],
+            ['📊 Статистика открыток'],
         ],
         resize_keyboard: true,
     },
@@ -619,15 +637,14 @@ bot.onText(/\/sbp(?:\s+(.+))?/, (msg, match) => {
 
 function updateSbpOnSite(sbpUrl) {
     try {
-        const indexPath = '/var/www/html/index.html';
+        const indexPath = path.join(SITE_DIR, 'index.html');
         let html = fs.readFileSync(indexPath, 'utf8');
-        // Заменяем строку с SBP_URL
         html = html.replace(
             /const SBP_URL = .*?;/,
             `const SBP_URL = ${sbpUrl ? `'${sbpUrl}'` : 'null'};`
         );
         fs.writeFileSync(indexPath, html, 'utf8');
-        deployToNetlify();
+        deployToGitHub('update SBP URL');
         console.log(`[sbp] url set to: ${sbpUrl}`);
     } catch(e) {
         console.error('[sbp] update error:', e.message);
@@ -770,8 +787,121 @@ function showSchedule(chatId) {
 // ─── О храме (user) ──────────────────────────────────────────────────────────
 function showAbout(chatId) {
     bot.sendMessage(chatId,
-        `🕍 *${CHURCH}*\n\nЗдесь принимаются записки о здравии и об упокоении.\n\nЧтобы подать записку — нажмите кнопку ниже.\n\n💳 *Пожертвование на храм:*\nПеревод по номеру телефона:\n*${DONATION_PHONE}*\nПолучатель: ${DONATION_NAME}\nНазначение: «${DONATION_NOTE}»`,
-        { parse_mode: 'Markdown', ...KB_USER });
+        `✞ *Храм Рождества Христова*\n_посёлок Айхал · Якутия_\n\n` +
+        `Посёлок Айхал — один из алмазных городов Якутии. Слово «Айхал» в переводе с якутского означает _«слава»_. Храм возведён при поддержке АК «АЛРОСА» и стоит на Соборной площади — в самом сердце посёлка.\n\n` +
+        `Гордость храма — *фарфоровый иконостас*, один из редчайших в России. Золотые купола и колокольня стали частью облика Айхала.\n\n` +
+        `👨‍⚕️ *Настоятель:* иерей Иоанн Серкин\n` +
+        `📞 *Телефон:* ${DONATION_PHONE}\n` +
+        `✝️ *Епархия:* Якутская и Ленская\n` +
+        `🕯 *Престол:* Рождество Христово, 7 января`,
+        {
+            parse_mode: 'Markdown',
+            reply_markup: { inline_keyboard: [[
+                { text: '🌐 Сайт прихода', url: NETLIFY_URL }
+            ]]}
+        }
+    );
+    // Отдельным сообщением восстанавливаем основную клавиатуру
+    setTimeout(() => bot.sendMessage(chatId, '🏠', KB_USER).catch(() => {}), 300);
+}
+
+// ─── Православный календарь ───────────────────────────────────────────────────
+function orthodoxEaster(year) {
+    const a = year % 4, b = year % 7, c = year % 19;
+    const d = (19 * c + 15) % 30;
+    const e = (2 * a + 4 * b - d + 34) % 7;
+    const month = Math.floor((d + e + 114) / 31);
+    const day   = ((d + e + 114) % 31) + 1;
+    const dt = new Date(Date.UTC(year, month - 1, day));
+    dt.setUTCDate(dt.getUTCDate() + 13); // Julian → Gregorian
+    return dt;
+}
+
+function showCalendar(chatId) {
+    // Используем якутское время UTC+9
+    const now = new Date(Date.now() + 9 * 3600 * 1000);
+    const year = now.getUTCFullYear();
+    const month = now.getUTCMonth() + 1;
+    const day   = now.getUTCDate();
+    const dow   = now.getUTCDay(); // 0=вс
+
+    const easter = orthodoxEaster(year);
+    const eM = easter.getUTCMonth() + 1;
+    const eD = easter.getUTCDate();
+    const eDate = new Date(Date.UTC(year, eM - 1, eD));
+    const todayUTC = new Date(Date.UTC(year, month - 1, day));
+    const diff = Math.round((todayUTC - eDate) / 86400000);
+
+    const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    const DAYS   = ['воскресенье','понедельник','вторник','среду','четверг','пятницу','субботу'];
+
+    // Неподвижные великие праздники
+    const FIXED = {
+        '1-7':  '✝️ Рождество Христово',
+        '1-14': '✝️ Обрезание Господне · свт. Василий Великий',
+        '1-19': '✝️ Крещение Господне (Богоявление)',
+        '2-15': '✝️ Сретение Господне',
+        '4-7':  '✝️ Благовещение Пресвятой Богородицы',
+        '8-19': '✝️ Преображение Господне',
+        '8-28': '✝️ Успение Пресвятой Богородицы',
+        '9-21': '✝️ Рождество Пресвятой Богородицы',
+        '9-27': '✝️ Воздвижение Честного Креста',
+        '11-4': '🕍 Казанская икона Богородицы',
+        '12-4': '✝️ Введение во Храм Пресвятой Богородицы',
+        '12-19':'🙏 Свт. Николай Чудотворец (Никола Зимний)',
+    };
+
+    // Подвижные праздники
+    const MOVEABLE = {
+        [-48]: '🟣 Чистый понедельник · начало Великого поста',
+        [-7]:  '🌿 Вербное воскресенье (Вход Господень в Иерусалим)',
+        [-6]:  '🕯 Великий понедельник',
+        [-5]:  '🕯 Великий вторник',
+        [-4]:  '🕯 Великая среда',
+        [-3]:  '🕯 Великий четверг (Тайная Вечеря)',
+        [-2]:  '🕯 Великая пятница (Распятие Господне)',
+        [-1]:  '🕯 Великая суббота',
+        [0]:   '🎉 ПАСХА ХРИСТОВА! Христос Воскресе!',
+        [39]:  '✝️ Вознесение Господне',
+        [49]:  '✝️ День Святой Троицы (Пятидесятница)',
+        [50]:  '✝️ День Святого Духа',
+    };
+
+    let feast = MOVEABLE[diff] || FIXED[`${month}-${day}`] || null;
+
+    // Пост
+    const isBrightWeek    = diff >= 0  && diff <= 6;
+    const isTrinityWeek   = diff >= 49 && diff <= 55;
+    const isChristmasWeek = month === 1 && day >= 7 && day <= 17;
+    const isPublicanWeek  = diff >= -70 && diff <= -64;
+    const noFastWeek = isBrightWeek || isTrinityWeek || isChristmasWeek || isPublicanWeek;
+
+    const isGreatLent      = diff >= -48 && diff <= -2 && !noFastWeek;
+    const apostolicFastEnd = new Date(Date.UTC(year, 5, 29)); // 29 июня
+    const apostolicFastStart = new Date(eDate); apostolicFastStart.setUTCDate(apostolicFastStart.getUTCDate() + 57);
+    const isApostolicFast  = todayUTC >= apostolicFastStart && todayUTC <= apostolicFastEnd;
+    const isDormitionFast  = month === 8 && day >= 1 && day <= 14;
+    const isNativityFast   = (month === 11 && day >= 28) || month === 12 || (month === 1 && day <= 6);
+    const isWedFri         = dow === 3 || dow === 5;
+
+    let fastInfo = '';
+    if (isGreatLent)          fastInfo = '🟣 Великий пост — строгое воздержание';
+    else if (isBrightWeek)    fastInfo = '🌟 Светлая седмица — поста нет';
+    else if (isTrinityWeek)   fastInfo = '🌿 Троицкая седмица — поста нет';
+    else if (isChristmasWeek) fastInfo = '🌟 Святки — поста нет';
+    else if (isPublicanWeek)  fastInfo = '✅ Седмица мытаря и фарисея — поста нет';
+    else if (isApostolicFast) fastInfo = '🔵 Петров пост';
+    else if (isDormitionFast) fastInfo = '🔵 Успенский пост';
+    else if (isNativityFast)  fastInfo = '🔵 Рождественский пост';
+    else if (isWedFri)        fastInfo = '🔵 Постный день (среда / пятница)';
+
+    const easterStr = `${eD} ${MONTHS[eM - 1]}`;
+    let text = `📅 *Церковный календарь*\n_${day} ${MONTHS[month - 1]} ${year}, ${DAYS[dow]}_\n\n`;
+    if (feast) text += `${feast}\n\n`;
+    if (fastInfo) text += `${fastInfo}\n\n`;
+    text += `_Православная Пасха ${year} — ${easterStr}_`;
+
+    bot.sendMessage(chatId, text, { parse_mode: 'Markdown', ...KB_USER });
 }
 
 // ─── Текст благодарности после записки ──────────────────────────────────────
@@ -780,9 +910,30 @@ const TYPE_LABEL_FULL  = { zdravie:'🙏 О здравии', upokoj:'✝️ Об
 
 function sendThanks(chatId, type, names) {
     const label = TYPE_LABEL_SHORT[type] || type;
+    const icons = { zdravie:'🙏', upokoj:'✝️', bolash:'🤒', putesh:'✈️', panikhida:'🕯', molebn:'🌿' };
+    const icon  = icons[type] || '✝️';
     bot.sendMessage(chatId,
-        `✅ Записка *${label}* подана!\n\n${names.map(n=>`• ${n}`).join('\n')}\n\nСпаси вас Господи! 🙏\n\n─────────────────\n💳 *Пожертвование на храм:*\nПеревод по номеру телефона:\n*${DONATION_PHONE}*\nПолучатель: ${DONATION_NAME}\nНазначение: «${DONATION_NOTE}»`,
+        `${icon} *Записка ${label} принята*\n\n${names.map(n => `• ${n}`).join('\n')}\n\nИмена будут помянуты на ближайшей службе в храме.\n\nГосподь слышит каждую молитву о ближних.\n*Спаси вас Христос!* 🙏`,
         { parse_mode: 'Markdown', ...KB_USER });
+
+    // Предлагаем сохранить список (только для здравия и упокоения)
+    if (type === 'zdravie' || type === 'upokoj') {
+        const p = getProfile(chatId);
+        const savedNames = p[type] || [];
+        const isSame = savedNames.length === names.length &&
+            savedNames.every((n, i) => n === names[i]);
+        if (!isSame) {
+            const listKey = `save_list_${type}_${names.join(',')}`.slice(0, 200);
+            setTimeout(() => {
+                bot.sendMessage(chatId,
+                    `💾 Сохранить этот список для быстрой подачи в следующий раз?`,
+                    { reply_markup: { inline_keyboard: [[
+                        { text: '💾 Да, сохранить', callback_data: listKey },
+                        { text: 'Нет', callback_data: 'pom_done' },
+                    ]]}});
+            }, 800);
+        }
+    }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -891,7 +1042,58 @@ bot.on('callback_query', async query => {
         } catch(e) { console.error('[pom] edit error:', e.message); }
         return;
     }
-    if (data === 'pom_done') return; // уже помянуто — игнорируем
+    if (data === 'pom_done') return;
+
+    // ─── Мой список: быстрая подача ─────────────────────────────────────────
+    if (data === 'mylist_zdravie' || data === 'mylist_upokoj') {
+        const type = data === 'mylist_zdravie' ? 'zdravie' : 'upokoj';
+        const p = getProfile(id);
+        const names = p[type] || [];
+        if (!names.length) { bot.sendMessage(id, '📋 Список пуст.', KB_USER); return; }
+        addNote(id, query.from.first_name, type, names);
+        const label = type === 'zdravie' ? 'о здравии' : 'об упокоении';
+        const icon  = type === 'zdravie' ? '🙏' : '✝️';
+        await notifyAdminsNote(TYPE_LABEL_FULL[type], names, (query.from.first_name || '—') + ' (мой список)');
+        bot.sendMessage(id,
+            `${icon} *Записка ${label} принята*\n\n${names.map(n => `• ${n}`).join('\n')}\n\nИмена будут помянуты на ближайшей службе.\n*Спаси вас Христос!* 🙏`,
+            { parse_mode: 'Markdown', ...KB_USER });
+        return;
+    }
+
+    if (data === 'mylist_edit') {
+        setState(id, 'AWAIT_MYLIST_TYPE', {});
+        bot.sendMessage(id,
+            `✏️ *Редактирование списка*\n\nВыберите, какой список хотите изменить:`,
+            { parse_mode: 'Markdown', reply_markup: { inline_keyboard: [
+                [{ text: '🙏 О здравии', callback_data: 'mylist_edit_zdravie' }],
+                [{ text: '✝️ Об упокоении', callback_data: 'mylist_edit_upokoj' }],
+                [{ text: '❌ Отмена', callback_data: 'cancel' }],
+            ]}});
+        return;
+    }
+
+    if (data === 'mylist_edit_zdravie' || data === 'mylist_edit_upokoj') {
+        const type = data === 'mylist_edit_zdravie' ? 'zdravie' : 'upokoj';
+        const label = type === 'zdravie' ? 'о здравии' : 'об упокоении';
+        setState(id, 'AWAIT_MYLIST_NAMES', { type });
+        bot.sendMessage(id,
+            `✏️ Введите имена *${label}* — каждое с новой строки.\n\nЭто заменит ваш текущий список.\n\n/menu — отмена`,
+            { parse_mode: 'Markdown' });
+        return;
+    }
+
+    // ─── Сохранить список после записки ─────────────────────────────────────
+    if (data.startsWith('save_list_')) {
+        const [,, type, ...rest] = data.split('_');
+        const names = rest.join('_').split(',');
+        saveProfileList(id, type, names);
+        bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
+            chat_id: id, message_id: query.message.message_id
+        }).catch(() => {});
+        bot.sendMessage(id, `✅ Список сохранён! Теперь кнопка *📋 Мой список* подаст записку за всех одним нажатием. 🙏`,
+            { parse_mode: 'Markdown', ...KB_USER });
+        return;
+    }
 });
 
 function askAmbiguous(chatId, pending, idx, type) {
@@ -969,7 +1171,7 @@ bot.on('message', msg => {
                 clearState(id);
                 const html = buildScheduleHTML(fileText.trim());
                 fs.writeFileSync(HTML_OUT, html, 'utf8');
-                deployToNetlify();
+                deployToGitHub('update schedule');
                 bot.sendMessage(id, `✅ Расписание опубликовано!\n\n🌐 ${NETLIFY_URL}/schedule.html`, KB_ADMIN);
             }).catch(e => {
                 console.error('[schedule_text] file read error:', e.message);
@@ -1050,6 +1252,8 @@ bot.on('message', msg => {
     if (text === '🕯 Панихида')            { startNote(id, 'panikhida'); return; }
     if (text === '🙏 Молебен')             { startNote(id, 'molebn');    return; }
     if (text === '📅 Расписание')          { showSchedule(id); return; }
+    if (text === '🗓 Календарь')          { showCalendar(id); return; }
+    if (text === '📋 Мой список')         { showMyList(id); return; }
     if (text === 'ℹ️ О храме')            { showAbout(id); return; }
     if (text === '💳 Пожертвование') {
         bot.sendMessage(id,
@@ -1085,19 +1289,43 @@ bot.on('message', msg => {
             return;
         }
         if (text === '🔗 Ссылки прихода') {
+            const isAdm = isAdmin(id);
+            const userLinks = [
+                [{ text: '🌐 Сайт прихода',            url: `${NETLIFY_URL}` }],
+                [{ text: '📅 Расписание богослужений',  url: `${NETLIFY_URL}/schedule.html` }],
+                [{ text: '🕯 Подать на Панихиду',       url: `${NETLIFY_URL}/#panikhida` }],
+                [{ text: '🌿 Открытки к празднику',     url: `${NETLIFY_URL}/#cards` }],
+                [{ text: '💳 Пожертвование',             url: `${NETLIFY_URL}/#donate` }],
+            ];
+            const adminLinks = [
+                [{ text: '🖨 QR-код для притвора',      url: `${NETLIFY_URL}/qr.html` }],
+                [{ text: '📄 Предложение Владыке',      url: `${NETLIFY_URL}/proposal.html` }],
+            ];
             bot.sendMessage(id,
                 `🔗 *Ссылки прихода*\n\n_Нажмите на любую — откроется в браузере_`,
                 {
                     parse_mode: 'Markdown',
-                    reply_markup: { inline_keyboard: [
-                        [{ text: '🌐 Сайт прихода',          url: `${NETLIFY_URL}` }],
-                        [{ text: '📅 Расписание богослужений', url: `${NETLIFY_URL}/schedule.html` }],
-                        [{ text: '🖨 QR-код для притвора',     url: `${NETLIFY_URL}/qr.html` }],
-                        [{ text: '📄 Предложение Владыке',     url: `${NETLIFY_URL}/proposal.html` }],
-                    ]},
+                    reply_markup: { inline_keyboard: isAdm ? [...userLinks, ...adminLinks] : userLinks },
                 });
             return;
         }
+        if (text === '📊 Статистика открыток') {
+            const stats = loadCardStats();
+            const entries = Object.entries(stats).sort((a, b) => b[1] - a[1]);
+            if (!entries.length) {
+                bot.sendMessage(id, '📊 Открытки ещё никто не скачивал.', KB_ADMIN);
+                return;
+            }
+            const total = entries.reduce((s, [, n]) => s + n, 0);
+            const lines = entries.map(([card, n], i) =>
+                `${i + 1}. ${card.replace(/^.*\//, '')} — ${n} раз`
+            );
+            bot.sendMessage(id,
+                `📊 *Статистика открыток*\n\nВсего скачиваний: *${total}*\n\n` + lines.join('\n'),
+                { parse_mode: 'Markdown', ...KB_ADMIN });
+            return;
+        }
+
         if (text === '📋 Новое расписание') {
             setState(id, 'AWAIT_SCHED_PHOTO', {});
             bot.sendMessage(id, '📅 Пришлите фото расписания — я его сохраню и покажу прихожанам.\n\n/menu — отмена');
@@ -1110,8 +1338,26 @@ bot.on('message', msg => {
         }
     }
 
-    // Состояние объявления — ввод названия праздника (admin)
+    // Ввод имён для «Моего списка»
     const st = getState(id);
+    if (st.step === 'AWAIT_MYLIST_NAMES') {
+        const type  = st.data.type;
+        const lines = parseNameLines(text);
+        if (!lines.length) { bot.sendMessage(id, '⚠️ Введите хотя бы одно имя.'); return; }
+        const names = lines.map(w => {
+            const c = findCanonical(w);
+            return c ? toGenitive(c) : (w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+        });
+        saveProfileList(id, type, names);
+        clearState(id);
+        const label = type === 'zdravie' ? 'о здравии' : 'об упокоении';
+        bot.sendMessage(id,
+            `✅ Список *${label}* сохранён!\n\n${names.map(n => `• ${n}`).join('\n')}\n\nТеперь кнопка *📋 Мой список* подаст записку за всех одним нажатием. 🙏`,
+            { parse_mode: 'Markdown', ...KB_USER });
+        return;
+    }
+
+    // Состояние объявления — ввод названия праздника (admin)
     if (st.step === 'AWAIT_ANNOUNCE_FEAST' && isAdmin(id)) {
         clearState(id);
         const announcement = buildAnnouncement(text);
@@ -1146,7 +1392,7 @@ bot.on('message', msg => {
         try {
             const html = buildScheduleHTML(text);
             fs.writeFileSync(HTML_OUT, html, 'utf8');
-            deployToNetlify();
+            deployToGitHub('update schedule');
             bot.sendMessage(id, `✅ Расписание опубликовано!\n\n🌐 ${NETLIFY_URL}/schedule.html`, KB_ADMIN);
         } catch(e) {
             bot.sendMessage(id, '❌ Ошибка: ' + e.message, KB_ADMIN);
@@ -1570,6 +1816,38 @@ app.post('/clear', (req, res) => {
 });
 
 app.get('/health', (req, res) => res.json({ ok: true }));
+
+// ─── Статистика скачиваний открыток ──────────────────────────
+const CARD_STATS_FILE = path.join(__dirname, 'card-stats.json');
+
+function loadCardStats() {
+    try { return JSON.parse(fs.readFileSync(CARD_STATS_FILE, 'utf8')); }
+    catch { return {}; }
+}
+
+app.post('/cards/track', (req, res) => {
+    const card = req.query.card;
+    if (!card) return res.json({ ok: false });
+    const stats = loadCardStats();
+    stats[card] = (stats[card] || 0) + 1;
+    fs.writeFileSync(CARD_STATS_FILE, JSON.stringify(stats, null, 2));
+    res.json({ ok: true, count: stats[card] });
+});
+
+app.get('/cards/stats', (req, res) => {
+    res.json(loadCardStats());
+});
+
+app.post('/question', async (req, res) => {
+    const { name, text } = req.body || {};
+    if (!text) return res.json({ ok: false });
+    const msg = `✉️ *Вопрос батюшке*\n\n*От:* ${name || 'Прихожанин'}\n\n${text}`;
+    const cfg = loadConfig();
+    for (const adminId of cfg.adminIds) {
+        await bot.sendMessage(adminId, msg, { parse_mode: 'Markdown' }).catch(() => {});
+    }
+    res.json({ ok: true });
+});
 
 app.listen(3001, () => console.log('HTTP на порту 3001'));
 
